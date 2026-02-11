@@ -182,5 +182,31 @@ importBtn.addEventListener("click", async () => {
     importMsg.textContent = "Chyba: " + e.message;
   }
 });
+// --- DEBUG + Recalculate start numbers ---
+const recalculateBtn = document.getElementById("recalculateBtn");
 
+if (!recalculateBtn) {
+  console.warn("recalculateBtn not found in DOM (check id in admin.html)");
+} else {
+  recalculateBtn.addEventListener("click", async () => {
+    // 1) potvrzení, že se klik chytá
+    console.log("Recalculate clicked");
+    alert("Klik OK – volám /api/recalculate-start-numbers");
+
+    // 2) viditelný status (ať nemusíš scrollovat pod tabulku)
+    if (racersMsg) racersMsg.textContent = "Přepočítávám startovní čísla…";
+
+    try {
+      const data = await api("/api/recalculate-start-numbers", { method: "POST" });
+      console.log("Recalculate response:", data);
+
+      if (racersMsg) racersMsg.textContent = "Hotovo ✅ Startovní čísla přepočítána.";
+      await loadRacers();
+    } catch (e) {
+      console.error("Recalculate error:", e);
+      if (racersMsg) racersMsg.textContent = "Chyba přepočtu: " + (e?.message || e);
+      alert("Chyba: " + (e?.message || e));
+    }
+  });
+}
 
