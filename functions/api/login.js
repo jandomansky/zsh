@@ -32,10 +32,16 @@ export async function onRequestPost({ request, env }) {
       }
     });
 
-  } catch {
-    return new Response(JSON.stringify({ ok: false, error: "Bad request" }), {
-      status: 400,
-      headers: { "content-type": "application/json" }
-    });
-  }
+  } catch (e) {
+  return new Response(JSON.stringify({
+    ok: false,
+    error: "Bad request",
+    message: String(e?.message || e),
+    hasSecret: !!env.SESSION_SECRET,
+  }), {
+    status: 400,
+    headers: { "content-type": "application/json" }
+  });
+}
+
 }
