@@ -84,3 +84,32 @@ export function setSessionCookie(token, maxAgeSec = 60 * 60 * 12) {
     "SameSite=Lax"
   ].join("; ");
 }
+export async function requireAuth(request, env) {
+  // pokud už máš v tomhle souboru funkci, která umí ověřit session,
+  // tak ji tady jen zavolej. Níže jsou 2 nejčastější varianty:
+
+  // Varianta 1: máš funkci verifySession(request, env) -> { authenticated, session }
+  if (typeof verifySession === "function") {
+    const me = await verifySession(request, env);
+    if (!me?.authenticated) return unauthorized();
+    return me;
+  }
+
+  // Varianta 2: máš funkci getSession(request, env) -> session | null
+  if (typeof getSession === "function") {
+    const session = await getSession(request, env);
+    if (!session) return unauthorized();
+    return { authenticated: true, session };
+  }
+
+  // Pokud ani jedna z těch funkcí neexistuje, dej mi sem obsah auth.js
+  // (nebo aspoň jeho exporty) a napojím to přesně na tvoji implementaci.
+  throw new Error("Auth helper missing: add verifySession() or getSession() mapping in requireAuth().");
+}
+
+function unauthorized() {
+  return new Response(JSON.stringify({ error: "Unauthorized" }), {
+    status: 401,
+    headers: { "content-type": "application/json" }
+  });
+}
