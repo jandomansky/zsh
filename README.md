@@ -1,2 +1,2 @@
-# zsh
+# ZSH
 Zimní sportovní hry Metrostavu
