@@ -1,8 +1,11 @@
 import { requireAuth } from "../_shared/auth";
 
 export async function onRequestPost({ request, env }) {
-  await requireAuth(request, env);
+  const auth = await requireAuth(request, env);
+  if (auth instanceof Response) return auth;
 
+  // ... zbytek
+}
   const { results } = await env.DB.prepare(`
     SELECT * FROM racers
     WHERE birth_date IS NOT NULL
