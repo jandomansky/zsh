@@ -10,19 +10,16 @@ function json(data, status = 200, extraHeaders = {}) {
 async function readBody(request) {
   const ct = (request.headers.get("content-type") || "").toLowerCase();
 
-  // JSON
   if (ct.includes("application/json")) {
     const body = await request.json().catch(() => ({}));
     return body || {};
   }
 
-  // form-data (kdyby někdy přišlo)
   if (ct.includes("multipart/form-data")) {
     const form = await request.formData();
     return Object.fromEntries(form.entries());
   }
 
-  // text fallback
   const text = await request.text().catch(() => "");
   try {
     return JSON.parse(text);
@@ -33,12 +30,6 @@ async function readBody(request) {
 
 export async function onRequestPost({ request, env }) {
   try {
-    return new Response(JSON.stringify({
-  ok: false,
-  error: "login.js reached",
-  version: "login-v2-2026-02-11"
-}), { status: 400, headers: { "content-type": "application/json" }});
-
     const body = await readBody(request);
     const password = (body.password || "").toString();
 
@@ -61,7 +52,6 @@ export async function onRequestPost({ request, env }) {
 
     return json({ ok: true }, 200, { "set-cookie": cookie });
   } catch (e) {
-    // klidně vrať konkrétní důvod pro debug
     return json({ ok: false, error: "Bad request", message: String(e?.message || e) }, 400);
   }
 }
