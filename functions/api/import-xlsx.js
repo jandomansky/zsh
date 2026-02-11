@@ -61,6 +61,13 @@ export async function onRequestPost({ request, env }) {
     const workbook = XLSX.read(buffer);
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet);
+return new Response(JSON.stringify({
+  ok: true,
+  sample: rows[0],
+  headers: Object.keys(rows[0] || {})
+}), {
+  headers: { "content-type": "application/json" }
+});
 
 const racers = rows
   .map(r => {
