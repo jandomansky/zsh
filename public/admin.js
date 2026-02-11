@@ -77,9 +77,10 @@ passwordEl.value = "";
 setMsg("Přihlášeno.", true);
 await checkAuth();
 
-  } catch {
-    setMsg("Špatné heslo nebo chyba.", false);
-  }
+  } catch (e) {
+  setMsg("Chyba: " + (e?.message || e), false);
+}
+
 });
 
 // jednoduchý logout endpoint zatím nemáš, zatím cookie jen „dožije“
