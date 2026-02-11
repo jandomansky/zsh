@@ -1,4 +1,4 @@
-import * as XLSX from "https://cdn.sheetjs.com/xlsx-0.20.2/package/xlsx.mjs";
+import * as XLSX from "../../vendor/xlsx.mjs";
 
 const DECISION_DATE = new Date("2024-01-25");
 
