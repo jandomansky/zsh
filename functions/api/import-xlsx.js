@@ -71,18 +71,28 @@ return new Response(JSON.stringify({
 
 const racers = rows
   .map(r => {
-    const birthDate = parseDate(r.birth_date || r["Birth Date"] || r["Datum narození"]);
-    const gender = r.gender || r["Gender"] || r["Pohlaví"];
+    const fullName = r["Závodník"];
+    const team = r["Tým"];
+    const birthDate = parseDate(r["dat. nar."]);
+    const disciplines = r["Lyže"];
 
-    if (!birthDate) return null;
+    if (!fullName || !birthDate) return null;
+
+    const parts = fullName.trim().split(" ");
+    const first_name = parts.slice(1).join(" ");
+    const last_name = parts[0];
+
+    // Zkusíme odhadnout gender podle přípony
+    let gender = "M";
+    if (first_name.endsWith("a")) gender = "F";
 
     return {
-      first_name: r.first_name || r["First Name"] || r["Jméno"],
-      last_name: r.last_name || r["Last Name"] || r["Příjmení"],
+      first_name,
+      last_name,
       birth_date: birthDate.toISOString().slice(0, 10),
       gender,
-      team: r.team || r["Team"] || r["Tým"],
-      disciplines: r.disciplines || r["Disciplines"] || r["Disciplíny"],
+      team,
+      disciplines,
       category_os: categoryOS(gender, birthDate)
     };
   })
