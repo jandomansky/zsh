@@ -7,9 +7,11 @@ const passwordEl = document.getElementById("password");
 const loginMsg = document.getElementById("loginMsg");
 
 function setMsg(text, ok = false) {
+  if (!loginMsg) return; // bezpečně, když element chybí
   loginMsg.textContent = text;
   loginMsg.className = "msg " + (ok ? "ok" : "bad");
 }
+
 
 async function api(url, opts = {}) {
   const res = await fetch(url, {
@@ -63,7 +65,7 @@ async function checkAuth() {
 
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  setMsg("");
+  setMsg("", true);
   try {
    await api("/api/login", …)
       method: "POST",
