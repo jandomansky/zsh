@@ -10,3 +10,8 @@ body{font-family:system-ui,Segoe UI,Arial;margin:0;padding:24px}
 .hint{color:#666}
 input{padding:10px;border-radius:10px;border:1px solid #ccc;width:100%}
 label{display:block;margin:10px 0 6px}
+.row{margin:10px 0}
+.tableWrap{overflow:auto;border:1px solid #eee;border-radius:12px}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th,.tbl td{padding:10px;border-bottom:1px solid #eee;text-align:left;white-space:nowrap}
+.tbl th{background:#fafafa}
