@@ -56,18 +56,11 @@ export async function onRequestPost({ request, env }) {
       return json({ ok: false, error: "Invalid password" }, 401);
     }
 
-    const token = await signSession({ user: "admin" }, String(secret));
+   const token = await signSession(env, { user: "admin" });
+const cookie = setSessionCookie(token);
 
-    const cookie = [
-      `session=${token}`,
-      "Path=/",
-      "HttpOnly",
-      "Secure",
-      "SameSite=Lax",
-      "Max-Age=604800" // 7 dní
-    ].join("; ");
+return json({ ok: true }, 200, { "set-cookie": cookie });
 
-    return json({ ok: true }, 200, { "set-cookie": cookie });
   } catch (e) {
     return json(
       { ok: false, error: "Bad request", message: String(e?.message || e) },
