@@ -1,1 +1,34 @@
-Hello admin
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ZSH – Admin</title>
+  <link rel="stylesheet" href="/admin.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header class="top">
+      <h1>ZSH – Admin</h1>
+      <button id="logoutBtn" class="btn secondary" hidden>Odhlásit</button>
+    </header>
+
+    <section id="loginCard" class="card">
+      <h2>Přihlášení</h2>
+      <form id="loginForm">
+        <label for="password">Heslo</label>
+        <input id="password" type="password" autocomplete="current-password" required />
+        <button class="btn" type="submit">Přihlásit</button>
+        <p id="loginMsg" class="msg"></p>
+      </form>
+    </section>
+
+    <section id="adminCard" class="card" hidden>
+      <h2>Přihlášeno ✅</h2>
+      <p class="hint">Session funguje. Další krok bude napojení D1 a import XLSX.</p>
+    </section>
+  </main>
+
+  <script src="/admin.js"></script>
+</body>
+</html>
