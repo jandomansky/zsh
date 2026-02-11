@@ -129,6 +129,10 @@ export async function onRequestPost({ request, env }) {
       });
     }
 
+    // ✅ TADY je to správné místo:
+    // smažeme stará data až ve chvíli, kdy víme, že máme validní nové řádky
+    await env.DB.prepare("DELETE FROM racers").run();
+
     // Vložíme do DB (zatím vždy INSERT; deduplikaci uděláme později)
     // Pro rychlost použijeme batch (D1 umí batch)
     const statements = racers.map(r =>
