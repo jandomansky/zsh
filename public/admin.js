@@ -96,6 +96,29 @@ const reloadBtn = document.getElementById("reloadBtn");
 const racersBody = document.getElementById("racersBody");
 const racersMsg = document.getElementById("racersMsg");
 
+const recalculateBtn = document.getElementById("recalculateBtn");
+
+async function recalculateStartNumbers() {
+  if (!recalculateBtn) return;
+
+  recalculateBtn.disabled = true;
+  racersMsg.textContent = "Přepočítávám startovní čísla…";
+
+  try {
+    await api("/api/recalculate-start-numbers", { method: "POST" });
+    racersMsg.textContent = "Hotovo ✅ Startovní čísla přepočítána.";
+    await loadRacers();
+  } catch (e) {
+    racersMsg.textContent = "Chyba přepočtu: " + (e?.message || e);
+  } finally {
+    recalculateBtn.disabled = false;
+  }
+}
+
+if (recalculateBtn) {
+  recalculateBtn.addEventListener("click", recalculateStartNumbers);
+}
+
 function esc(s) {
   return String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
 }
