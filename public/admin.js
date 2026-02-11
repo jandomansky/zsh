@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const passwordEl = document.getElementById("password");
   const loginMsg = document.getElementById("loginMsg");
 
-  const reloadBtn = document.getElementById("reloadBtn");
+  const deleteBtn = document.getElementById("deleteBtn");
   const racersBody = document.getElementById("racersBody");
   const racersMsg = document.getElementById("racersMsg");
 
@@ -82,169 +82,64 @@ document.addEventListener("DOMContentLoaded", () => {
       .replaceAll(">", "&gt;");
   }
 
-  function toTitleDisciplines(s) {
-  const t = String(s || "").toLowerCase().split(",").map(x => x.trim()).filter(Boolean);
-  const out = [];
-  if (t.includes("lyže")) out.push("Lyže");
-  if (t.includes("snowboard")) out.push("Snowboard");
-  if (t.includes("biatlon")) out.push("Biatlon");
-  return out.join(", ");
-}
-
-function displayCategories(r) {
-  const out = [];
-
-  // lyže kategorie (M1/M2/M3/Ž1/Ž2) jen pokud opravdu závodí v lyžích
-  const disc = String(r.disciplines || "").toLowerCase();
-  const hasSki = disc.includes("lyže");
-
-  if (hasSki && r.category_os) out.push(String(r.category_os).trim());
-
-  // snowboard kategorie je jen M nebo Ž, jen pokud závodí ve snowboardu
-  const hasSnow = disc.includes("snowboard");
-  if (hasSnow && r.snowboard_cat) out.push(String(r.snowboard_cat).trim());
-
-  // biatlon je družstev → kategorii nepřidáváme
-
-  return [...new Set(out)].join(", ");
-}
-
-function tokensLower(raw) {
-  return String(raw || "")
-    .toLowerCase()
-    .split(",")
-    .map(x => x.trim())
-    .filter(Boolean);
-}
-
-function hasDisc(r, key) {
-  return tokensLower(r.disciplines).includes(key);
-}
-
-function displayDisciplines(r) {
-  const out = [];
-  if (hasDisc(r, "lyže")) out.push("Lyže");
-  if (hasDisc(r, "snowboard")) out.push("Snowboard");
-  if (hasDisc(r, "biatlon")) out.push("Biatlon");
-  return out.join(", ");
-}
-
-function displayCategories(r) {
-  const out = [];
-
-  // Lyže → věková/pohlavní kategorie M1/M2/M3/Ž1/Ž2 (uložené v category_os)
-  if (hasDisc(r, "lyže") && r.category_os) {
-    out.push(String(r.category_os).trim());
+  // ======= Disciplíny / Kategorie (nový model) =======
+  function discTokensLower(raw) {
+    return String(raw || "")
+      .toLowerCase()
+      .split(",")
+      .map(x => x.trim())
+      .filter(Boolean);
   }
 
-  // Snowboard → jen M nebo Ž (uložené v snowboard_cat)
-  if (hasDisc(r, "snowboard") && r.snowboard_cat) {
-    out.push(String(r.snowboard_cat).trim());
+  function hasDisc(r, key) {
+    return discTokensLower(r.disciplines).includes(key);
   }
 
-  // Biatlon je družstev → kategorie se nevypisuje
+  function displayDisciplines(r) {
+    const out = [];
+    if (hasDisc(r, "lyže")) out.push("Lyže");
+    if (hasDisc(r, "snowboard")) out.push("Snowboard");
+    if (hasDisc(r, "biatlon") || Number(r.biatlon) === 1) out.push("Biatlon");
+    return out.join(", ");
+  }
 
-  // odstraní duplicity
-  return [...new Set(out)].join(", ");
-}
-  
+  function displayCategories(r) {
+    const out = [];
+
+    // Lyže → M1/M2/M3/Ž1/Ž2 (jen pokud závodí v lyžích)
+    if (hasDisc(r, "lyže") && r.category_os) {
+      out.push(String(r.category_os).trim());
+    }
+
+    // Snowboard → jen M/Ž (jen pokud závodí ve snowboardu)
+    if (hasDisc(r, "snowboard") && r.snowboard_cat) {
+      out.push(String(r.snowboard_cat).trim());
+    }
+
+    // Biatlon je družstev → kategorii nevypisujeme
+
+    return [...new Set(out)].join(", ");
+  }
+
   function renderRacers(rows) {
-  racersBody.innerHTML = rows.map(r => {
-    const disc = displayDisciplines(r);
-    const cats = displayCategories(r);
+    if (!racersBody) return;
+    racersBody.innerHTML = (rows || []).map(r => {
+      const disc = displayDisciplines(r);
+      const cats = displayCategories(r);
 
-    return `
-      <tr>
-        <td>${esc(r.last_name)}</td>
-        <td>${esc(r.first_name)}</td>
-        <td>${esc(r.birth_date)}</td>
-        <td>${esc(r.team)}</td>
-        <td>${esc(disc)}</td>
-        <td>${esc(cats)}</td>
-        <td>${esc(r.start_number)}</td>
-      </tr>
-    `;
-  }).join("");
-}
-
-function tokens(raw) {
-  // dovolí "Ž1", "Ž1, biatlon", "M2; snow", "M3 / biat"
-  return String(raw || "")
-    .split(/[,;/|]+/)
-    .map(x => x.trim())
-    .filter(Boolean);
-}
-
-function genderFromRow(r) {
-  // primárně z category_os (u tebe vždy existuje)
-  return String(r.category_os || "").startsWith("Ž") ? "Ž" : "M";
-}
-
-function hasSki(r) {
-  const SKI_CATS = new Set(["M1", "M2", "M3", "Ž1", "Ž2"]);
-  const t = tokens(r.disciplines);
-  return t.some(x => SKI_CATS.has(x)) || SKI_CATS.has(String(r.category_os || "").trim());
-}
-
-function hasSnowboard(r) {
-  const s = String(r.disciplines || "").toLowerCase();
-  return s.includes("snow");
-}
-
-function hasBiatlon(r) {
-  const s = String(r.disciplines || "").toLowerCase();
-  return s.includes("biat");
-}
-
-function tokens(raw) {
-  return String(raw || "")
-    .toLowerCase()
-    .split(/[,;/|]+/)
-    .map(x => x.trim())
-    .filter(Boolean);
-}
-
-function genderFromRow(r) {
-  return String(r.category_os || "").startsWith("Ž") ? "Ž" : "M";
-}
-
-function displayDisciplines(r) {
-  const t = tokens(r.disciplines);
-  const out = [];
-
-  if (t.includes("lyže")) out.push("Lyže");
-  if (t.includes("snowboard")) out.push("Snowboard");
-  if (t.includes("biatlon")) out.push("Biatlon");
-
-  return out.join(", ");
-}
-
-function displayCategories(r) {
-  const t = tokens(r.disciplines);
-  const out = [];
-  const catOS = String(r.category_os || "").trim();
-  const gender = genderFromRow(r);
-
-  // Lyže → věková kategorie
-  if (t.includes("lyže") && catOS) {
-    out.push(catOS);
+      return `
+        <tr>
+          <td>${esc(r.last_name)}</td>
+          <td>${esc(r.first_name)}</td>
+          <td>${esc(r.birth_date)}</td>
+          <td>${esc(r.team)}</td>
+          <td>${esc(disc)}</td>
+          <td>${esc(cats)}</td>
+          <td>${esc(r.start_number)}</td>
+        </tr>
+      `;
+    }).join("");
   }
-
-  // Snowboard → jen M / Ž
-  if (t.includes("snowboard")) {
-    out.push(gender);
-  }
-
-  // Biatlon → stejná kat. jako OS (pokud chcete jinak, upravíme)
-  if (t.includes("biatlon") && catOS) {
-    out.push(catOS);
-  }
-
-  // odstraní duplicity
-  return [...new Set(out)].join(", ");
-}
-
-
 
   async function loadRacers() {
     if (racersMsg) racersMsg.textContent = "Načítám…";
@@ -257,7 +152,7 @@ function displayCategories(r) {
     }
   }
 
-  // --- LOGIN ---
+  // ======= LOGIN =======
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -277,11 +172,9 @@ function displayCategories(r) {
         setMsg("Chyba: " + (e?.message || e), false);
       }
     });
-  } else {
-    console.error("loginForm not found");
   }
 
-  // --- LOGOUT (UI only) ---
+  // ======= LOGOUT (UI only) =======
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
       showLogin();
@@ -289,10 +182,34 @@ function displayCategories(r) {
     });
   }
 
-  // --- RELOAD ---
-  if (reloadBtn) reloadBtn.addEventListener("click", loadRacers);
+  // ======= SMAZAT ZÁVODNÍKY =======
+  if (deleteBtn) {
+    deleteBtn.addEventListener("click", async () => {
+      const ok = confirm("Opravdu smazat všechny závodníky? Tuto akci nelze vrátit.");
+      if (!ok) return;
 
-  // --- RECALCULATE ---
+      deleteBtn.disabled = true;
+      if (racersMsg) racersMsg.textContent = "Mažu…";
+
+      try {
+        await api("/api/delete-racers", { method: "POST" });
+
+        // vyčistit UI hned
+        renderRacers([]);
+        if (racersMsg) racersMsg.textContent = "Smazáno. Čekám na nový XLSX import.";
+
+        // volitelně zrušit vybraný soubor
+        if (xlsxFile) xlsxFile.value = "";
+        if (importMsg) importMsg.textContent = "";
+      } catch (e) {
+        if (racersMsg) racersMsg.textContent = "Chyba mazání: " + (e?.message || e);
+      } finally {
+        deleteBtn.disabled = false;
+      }
+    });
+  }
+
+  // ======= RECALCULATE =======
   if (recalculateBtn) {
     recalculateBtn.addEventListener("click", async () => {
       recalculateBtn.disabled = true;
@@ -312,7 +229,7 @@ function displayCategories(r) {
     });
   }
 
-  // --- IMPORT XLSX ---
+  // ======= IMPORT XLSX =======
   if (importBtn) {
     importBtn.addEventListener("click", async () => {
       if (!xlsxFile || !xlsxFile.files || !xlsxFile.files.length) {
@@ -324,6 +241,7 @@ function displayCategories(r) {
       formData.append("file", xlsxFile.files[0]);
 
       if (importMsg) importMsg.textContent = "Importuji…";
+      importBtn.disabled = true;
 
       try {
         const res = await fetch("/api/import-xlsx", {
@@ -339,6 +257,8 @@ function displayCategories(r) {
         await loadRacers();
       } catch (e) {
         if (importMsg) importMsg.textContent = "Chyba: " + e.message;
+      } finally {
+        importBtn.disabled = false;
       }
     });
   }
