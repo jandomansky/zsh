@@ -1,5 +1,5 @@
 // functions/api/login.js
-import { signSession } from "../_shared/auth.js";
+import { signSession, setSessionCookie } from "../_shared/auth.js";
 
 function json(data, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(data), {
