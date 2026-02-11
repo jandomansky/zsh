@@ -67,14 +67,16 @@ loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   setMsg("", true);
   try {
-   await api("/api/login", …)
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ password: passwordEl.value })
-    });
-    passwordEl.value = "";
-    setMsg("Přihlášeno.", true);
-    await checkAuth();
+   await api("/api/login", {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({ password: passwordEl.value })
+});
+
+passwordEl.value = "";
+setMsg("Přihlášeno.", true);
+await checkAuth();
+
   } catch {
     setMsg("Špatné heslo nebo chyba.", false);
   }
