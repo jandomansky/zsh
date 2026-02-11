@@ -56,7 +56,7 @@ export async function onRequestPost({ request, env }) {
       return json({ ok: false, error: "Invalid password" }, 401);
     }
 
-    const token = await signSession({ user: "admin" }, secret);
+    const token = await signSession({ user: "admin" }, String(secret));
 
     const cookie = [
       `session=${token}`,
