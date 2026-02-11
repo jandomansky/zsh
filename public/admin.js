@@ -65,4 +65,46 @@ logoutBtn.addEventListener("click", async () => {
 });
 
 checkAuth();
+const reloadBtn = document.getElementById("reloadBtn");
+const racersBody = document.getElementById("racersBody");
+const racersMsg = document.getElementById("racersMsg");
+
+function esc(s) {
+  return String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+}
+
+function renderRacers(rows) {
+  racersBody.innerHTML = rows.map(r => `
+    <tr>
+      <td>${esc(r.last_name)}</td>
+      <td>${esc(r.first_name)}</td>
+      <td>${esc(r.birth_date)}</td>
+      <td>${esc(r.team)}</td>
+      <td>${esc(r.disciplines)}</td>
+      <td>${esc(r.category_os)}</td>
+      <td>${esc(r.start_number)}</td>
+    </tr>
+  `).join("");
+}
+
+async function loadRacers() {
+  racersMsg.textContent = "Načítám…";
+  try {
+    const data = await api("/api/racers");
+    renderRacers(data.racers || []);
+    racersMsg.textContent = `Načteno: ${data.count || 0}`;
+  } catch (e) {
+    racersMsg.textContent = "Chyba načítání: " + e.message;
+  }
+}
+
+reloadBtn.addEventListener("click", loadRacers);
+
+// po přihlášení automaticky načti
+const _origShowAdmin = showAdmin;
+showAdmin = function () {
+  _origShowAdmin();
+  loadRacers();
+};
+
 
