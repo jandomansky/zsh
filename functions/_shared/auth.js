@@ -85,13 +85,20 @@ export function setSessionCookie(token, maxAgeSec = 60 * 60 * 12) {
   ].join("; ");
 }
 export async function requireAuth(request, env) {
-  // pokud už máš v tomhle souboru funkci, která umí ověřit session,
-  // tak ji tady jen zavolej. Níže jsou 2 nejčastější varianty:
+  const token = getCookie(request, COOKIE_NAME);
+  const session = await verifySession(token, env?.SESSION_SECRET);
 
-  // Varianta 1: máš funkci verifySession(request, env) -> { authenticated, session }
-  if (typeof verifySession === "function") {
-    const me = await verifySession(request, env);
-    if (!me?.authenticated) return unauthorized();
+  if (!session) return unauthorized();
+  return session; // vrací payload session (např. { exp, ... }
+}
+
+function unauthorized() {
+  return new Response(JSON.stringify({ error: "Unauthorized" }), {
+    status: 401,
+    headers: { "content-type": "application/json" }
+  });
+}
+
     return me;
   }
 
