@@ -25,7 +25,28 @@
 
     <section id="adminCard" class="card" hidden>
       <h2>Přihlášeno ✅</h2>
-      <p class="hint">Session funguje. Další krok bude napojení D1 a import XLSX.</p>
+     <div class="row">
+  <button id="reloadBtn" class="btn">Načíst závodníky</button>
+</div>
+
+<div class="tableWrap">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>Příjmení</th>
+        <th>Jméno</th>
+        <th>Narození</th>
+        <th>Tým</th>
+        <th>Disciplíny</th>
+        <th>Kat. OS</th>
+        <th>Start #</th>
+      </tr>
+    </thead>
+    <tbody id="racersBody"></tbody>
+  </table>
+</div>
+<p id="racersMsg" class="hint"></p>
+
     </section>
   </main>
 
