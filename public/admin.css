@@ -1,1 +1,12 @@
-Hello admin
+body{font-family:system-ui,Segoe UI,Arial;margin:0;padding:24px}
+.wrap{max-width:800px;margin:0 auto}
+.card{border:1px solid #ddd;border-radius:12px;padding:16px;margin-top:12px}
+.top{display:flex;align-items:center;justify-content:space-between}
+.btn{padding:10px 12px;border-radius:10px;border:1px solid #ccc;background:#f5f5f5;cursor:pointer}
+.btn.secondary{background:#fff}
+.msg{margin-top:10px}
+.msg.ok{color:green}
+.msg.bad{color:#b00}
+.hint{color:#666}
+input{padding:10px;border-radius:10px;border:1px solid #ccc;width:100%}
+label{display:block;margin:10px 0 6px}
