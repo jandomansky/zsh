@@ -1,2 +1,2 @@
 # ZSH
-Zimní sportovní hry Metrostavu
+Zimní sportovní hry Metrostavu 2027
