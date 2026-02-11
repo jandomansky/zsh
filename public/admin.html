@@ -32,10 +32,11 @@
       <div class="row" style="justify-content:space-between;width:100%; gap:12px;">
         <div class="status">Přihlášeno <span aria-hidden="true">✅</span></div>
 
-        <div class="tabs" role="tablist" aria-label="Disciplíny">
+        <div class="tabs" role="tablist" aria-label="Sekce">
           <button id="tabSki" class="btn tab active" type="button">Lyže</button>
           <button id="tabSnow" class="btn tab" type="button">Snowboard</button>
           <button id="tabBiat" class="btn tab" type="button">Biatlon</button>
+          <button id="tabAll" class="btn tab" type="button">Přehled všech závodníků</button>
         </div>
       </div>
 
@@ -119,8 +120,8 @@
         <p id="biatMsg" class="hint"></p>
       </section>
 
-      <!-- ====== PŘEHLED ZÁVODNÍKŮ (pro kontrolu) ====== -->
-      <section class="panel">
+      <!-- ====== 4. TAB: PŘEHLED VŠECH ZÁVODNÍKŮ ====== -->
+      <section id="panelAll" class="panel" hidden>
         <h3>Přehled závodníků</h3>
         <div class="tableWrap">
           <table class="tbl">
