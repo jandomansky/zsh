@@ -247,3 +247,9 @@ input[type="file"]{
   h1{ font-size: 26px; }
   .card{ padding: 14px; }
 }
+/* Užší login karta */
+.card.login{
+  max-width: 520px;
+  margin: 40px auto 0 auto; /* vystředění */
+  padding: 28px;
+}
