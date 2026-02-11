@@ -28,59 +28,118 @@
     <!-- ✅ Admin část -->
     <section id="adminCard" class="card" hidden>
 
-   <div class="row" style="justify-content:space-between;width:100%; gap:12px;">
-  <div class="status">Přihlášeno <span aria-hidden="true">✅</span></div>
+      <!-- status + taby -->
+      <div class="row" style="justify-content:space-between;width:100%; gap:12px;">
+        <div class="status">Přihlášeno <span aria-hidden="true">✅</span></div>
 
-  <div class="tabs" role="tablist" aria-label="Disciplíny">
-    <button id="tabSki" class="btn tab active" type="button">Lyže</button>
-    <button id="tabSnow" class="btn tab" type="button">Snowboard</button>
-    <button id="tabBiat" class="btn tab" type="button">Biatlon</button>
-  </div>
-</div>
+        <div class="tabs" role="tablist" aria-label="Disciplíny">
+          <button id="tabSki" class="btn tab active" type="button">Lyže</button>
+          <button id="tabSnow" class="btn tab" type="button">Snowboard</button>
+          <button id="tabBiat" class="btn tab" type="button">Biatlon</button>
+        </div>
+      </div>
 
-
+      <!-- akce -->
       <div class="row">
-        <button id="deleteBtn" class="btn secondary">Smazat závodníky</button>
-        <button id="recalculateBtn" class="btn secondary">
+        <button id="deleteBtn" class="btn secondary" type="button">Smazat závodníky</button>
+        <button id="recalculateBtn" class="btn secondary" type="button">
           Přepočítat startovní čísla
         </button>
       </div>
 
+      <!-- import -->
       <div class="row">
         <h3>Import XLSX</h3>
         <input type="file" id="xlsxFile" accept=".xlsx" />
-        <button id="importBtn" class="btn">Importovat</button>
+        <button id="importBtn" class="btn" type="button">Importovat</button>
         <p id="importMsg" class="hint"></p>
       </div>
 
-      <div class="row" style="justify-content:space-between;width:100%; gap:12px;">
-  <div class="status">Přihlášeno <span aria-hidden="true">✅</span></div>
+      <!-- ====== SEKCE: LYŽE ====== -->
+      <section id="panelSki" class="panel">
+        <h3>Lyže – výsledky</h3>
+        <div class="tableWrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Start</th>
+                <th>Jméno</th>
+                <th>Narození</th>
+                <th>Tým</th>
+                <th>Kategorie</th>
+                <th>Čas 1</th>
+                <th>Čas 2</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="skiBody"></tbody>
+          </table>
+        </div>
+        <p id="skiMsg" class="hint"></p>
+      </section>
 
-  <div class="tabs" role="tablist" aria-label="Disciplíny">
-    <button id="tabSki" class="btn tab active" type="button">Lyže</button>
-    <button id="tabSnow" class="btn tab" type="button">Snowboard</button>
-    <button id="tabBiat" class="btn tab" type="button">Biatlon</button>
-  </div>
-</div>
+      <!-- ====== SEKCE: SNOWBOARD ====== -->
+      <section id="panelSnow" class="panel" hidden>
+        <h3>Snowboard – výsledky</h3>
+        <div class="tableWrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Start</th>
+                <th>Jméno</th>
+                <th>Narození</th>
+                <th>Tým</th>
+                <th>Kategorie</th>
+                <th>Čas 1</th>
+                <th>Čas 2</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="snowBody"></tbody>
+          </table>
+        </div>
+        <p id="snowMsg" class="hint"></p>
+      </section>
 
-      <div class="tableWrap">
-        <table class="tbl">
-          <thead>
-            <tr>
-              <th>Příjmení</th>
-              <th>Jméno</th>
-              <th>Narození</th>
-              <th>Tým</th>
-              <th>Disciplíny</th>
-              <th>Kategorie</th>
-              <th>Start. číslo</th>
-            </tr>
-          </thead>
-          <tbody id="racersBody"></tbody>
-        </table>
-      </div>
+      <!-- ====== SEKCE: BIATLON ====== -->
+      <section id="panelBiat" class="panel" hidden>
+        <h3>Biatlon – týmy</h3>
+        <div class="tableWrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Tým</th>
+                <th>Čas</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="biatBody"></tbody>
+          </table>
+        </div>
+        <p id="biatMsg" class="hint"></p>
+      </section>
 
-      <p id="racersMsg" class="hint"></p>
+      <!-- ====== PŘEHLED ZÁVODNÍKŮ (pro kontrolu) ====== -->
+      <section class="panel">
+        <h3>Přehled závodníků</h3>
+        <div class="tableWrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Příjmení</th>
+                <th>Jméno</th>
+                <th>Narození</th>
+                <th>Tým</th>
+                <th>Disciplíny</th>
+                <th>Kategorie</th>
+                <th>Start. číslo</th>
+              </tr>
+            </thead>
+            <tbody id="racersBody"></tbody>
+          </table>
+        </div>
+        <p id="racersMsg" class="hint"></p>
+      </section>
 
     </section>
 
