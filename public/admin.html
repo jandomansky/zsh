@@ -23,16 +23,23 @@
       </form>
     </section>
 
-    <section id="adminCard" class="card" hidden>
-      <h2>Přihlášeno ✅</h2>
-     <div class="row">
-  <button id="reloadBtn" class="btn">Načíst závodníky</button>
-       <div class="row">
-  <h3>Import XLSX</h3>
-  <input type="file" id="xlsxFile" accept=".xlsx" />
-  <button id="importBtn" class="btn">Importovat</button>
-  <p id="importMsg" class="hint"></p>
-</div>
+   <section id="adminCard" class="card" hidden>
+  <h2>Přihlášeno ✅</h2>
+
+  <div class="row">
+    <button id="reloadBtn" class="btn">Načíst závodníky</button>
+    <button id="recalculateBtn" class="btn secondary">
+      Přepočítat startovní čísla
+    </button>
+  </div>
+
+  <div class="row">
+    <h3>Import XLSX</h3>
+    <input type="file" id="xlsxFile" accept=".xlsx" />
+    <button id="importBtn" class="btn">Importovat</button>
+    <p id="importMsg" class="hint"></p>
+  </div>
+
 
 </div>
 
