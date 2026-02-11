@@ -18,13 +18,13 @@ export async function onRequestPost({ request, env }) {
       });
     }
 
-    // vytvoření session payloadu
+    // vytvoříme payload BEZ exp (ten přidá signSession automaticky)
     const payload = {
-      user: "admin",
-      exp: Date.now() + 1000 * 60 * 60 * 12, // 12 hodin
+      user: "admin"
     };
 
-    const token = await signSession(env, payload);
+    // ⚠️ SPRÁVNÉ POŘADÍ PARAMETRŮ
+    const token = await signSession(payload, env.SESSION_SECRET);
 
     return new Response(JSON.stringify({ ok: true }), {
       headers: {
