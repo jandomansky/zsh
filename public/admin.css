@@ -1,5 +1,8 @@
 body{font-family:system-ui,Segoe UI,Arial;margin:0;padding:24px}
-.wrap{max-width:800px;margin:0 auto}
+
+/* bylo 800px -> rozšíříme */
+.wrap{max-width:1280px;margin:0 auto}
+
 .card{border:1px solid #ddd;border-radius:12px;padding:16px;margin-top:12px}
 .top{display:flex;align-items:center;justify-content:space-between}
 .btn{padding:10px 12px;border-radius:10px;border:1px solid #ccc;background:#f5f5f5;cursor:pointer}
@@ -11,9 +14,50 @@ body{font-family:system-ui,Segoe UI,Arial;margin:0;padding:24px}
 input{padding:10px;border-radius:10px;border:1px solid #ccc;width:100%}
 label{display:block;margin:10px 0 6px}
 .row{margin:10px 0}
-.tableWrap{overflow:auto;border:1px solid #eee;border-radius:12px}
-.tbl{width:100%;border-collapse:collapse}
-.tbl th,.tbl td{padding:10px;border-bottom:1px solid #eee;text-align:left;white-space:nowrap}
+
+/* tabulka: vždy viditelná, když se nevejde tak scroll */
+.tableWrap{
+  overflow-x:auto;             /* klíčové */
+  overflow-y:auto;
+  border:1px solid #eee;
+  border-radius:12px;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* tabulka nechť má minimální šířku, ať se sloupce nemačkají */
+.tbl{
+  width:100%;
+  min-width:980px;             /* když přidáš sloupce, klidně zvedni */
+  border-collapse:collapse;
+}
+
+.tbl th,.tbl td{
+  padding:10px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+  white-space:nowrap;
+}
+
 .tbl th{background:#fafafa}
+
+/* sticky hlavička */
+.tbl thead th{
+  position:sticky;
+  top:0;
+  z-index:2;
+  background:#fafafa;
+}
+
+/* sticky poslední sloupec (Start #) – aby byl vždy vidět */
+.tbl th:last-child,
+.tbl td:last-child{
+  position:sticky;
+  right:0;
+  background:#fff;
+  z-index:3;
+  box-shadow:-8px 0 10px rgba(0,0,0,0.04);
+}
+
+/* tvoje z-index pojistky */
 .row { position: relative; z-index: 5; }
 .tableWrap { position: relative; z-index: 1; }
