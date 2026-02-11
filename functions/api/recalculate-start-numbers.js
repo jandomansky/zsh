@@ -14,16 +14,15 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: "No racers found." }, 400);
   }
 
-  // Reset – ať přepočet vždy přepíše předchozí stav
+  // Reset
   await env.DB.prepare(`UPDATE racers SET start_number = NULL`).run();
 
-  // Starší = menší datum → dostane menší startovní číslo
+  // Starší = menší datum → menší startovní číslo
   const sortByAgeOldestFirst = (a, b) =>
     new Date(a.birth_date) - new Date(b.birth_date);
 
   let startNumber = 1;
 
-  // --- helpery pro disciplíny (nový model: "lyže, snowboard, biatlon") ---
   function discTokens(r) {
     return String(r.disciplines || "")
       .toLowerCase()
@@ -36,8 +35,7 @@ export async function onRequestPost({ request, env }) {
   const hasSnowboard = (r) => discTokens(r).includes("snowboard");
   const hasBiatlon = (r) => Number(r.biatlon) === 1 || discTokens(r).includes("biatlon");
 
-  // Lyže závodníci = mají lyže a zároveň mají category_os (M1/M2/M3/Ž1/Ž2)
-  const skiRacers = results.filter((r) => hasSki(r) && r.category_os);
+  const isWoman = (r) => String(r.snowboard_cat || r.category_os || "").startsWith("Ž");
 
   const assignGroup = async (group) => {
     group.sort(sortByAgeOldestFirst);
@@ -54,7 +52,9 @@ export async function onRequestPost({ request, env }) {
     }
   };
 
-  // 1) Lyže: Ž1 -> Ž2 -> M1 -> M2 -> M3 (od nejstaršího v každé skupině)
+  // 1) LYŽE: Ž1 -> Ž2 -> M1 -> M2 -> M3
+  const skiRacers = results.filter((r) => hasSki(r) && r.category_os);
+
   await assignGroup(skiRacers.filter((r) => r.category_os === "Ž1"));
   await assignGroup(skiRacers.filter((r) => r.category_os === "Ž2"));
   await assignGroup(skiRacers.filter((r) => r.category_os === "M1"));
@@ -63,8 +63,15 @@ export async function onRequestPost({ request, env }) {
 
   const assignedInSki = startNumber - 1;
 
-  // 2) Biatlon-only: jen ti, co mají biatlon a nemají lyže ani snowboard
-  // (řazení od nejstaršího)
+  // 2) SNOWBOARD: Ž -> M (kategorie jsou jen M/Ž a máš je v snowboard_cat)
+  const snowboardRacers = results.filter((r) => hasSnowboard(r) && r.snowboard_cat);
+
+  await assignGroup(snowboardRacers.filter((r) => String(r.snowboard_cat).trim() === "Ž"));
+  await assignGroup(snowboardRacers.filter((r) => String(r.snowboard_cat).trim() === "M"));
+
+  const assignedInSnowboard = startNumber - 1 - assignedInSki;
+
+  // 3) BIATLON-ONLY: jen ti, co mají biatlon a nemají lyže ani snowboard
   const biatlonOnly = results
     .filter((r) => hasBiatlon(r) && !hasSki(r) && !hasSnowboard(r))
     .sort(sortByAgeOldestFirst);
@@ -87,6 +94,7 @@ export async function onRequestPost({ request, env }) {
   return json({
     ok: true,
     assigned_in_ski: assignedInSki,
+    assigned_in_snowboard: assignedInSnowboard,
     assigned_biatlon_only: assignedBiatlonOnly,
     updated: totalAssigned,
   });
