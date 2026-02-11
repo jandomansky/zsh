@@ -25,6 +25,7 @@ async function hmac(secret, dataBytes) {
     false,
     ["sign", "verify"]
   );
+
   const sig = await crypto.subtle.sign("HMAC", key, dataBytes);
   return new Uint8Array(sig);
 }
@@ -84,34 +85,14 @@ export function setSessionCookie(token, maxAgeSec = 60 * 60 * 12) {
     "SameSite=Lax"
   ].join("; ");
 }
+
+// ✅ API: requireAuth(request, env)
+// Vrací session payload, nebo Response 401
 export async function requireAuth(request, env) {
   const token = getCookie(request, COOKIE_NAME);
   const session = await verifySession(token, env?.SESSION_SECRET);
-
   if (!session) return unauthorized();
-  return session; // vrací payload session (např. { exp, ... }
-}
-
-function unauthorized() {
-  return new Response(JSON.stringify({ error: "Unauthorized" }), {
-    status: 401,
-    headers: { "content-type": "application/json" }
-  });
-}
-
-    return me;
-  }
-
-  // Varianta 2: máš funkci getSession(request, env) -> session | null
-  if (typeof getSession === "function") {
-    const session = await getSession(request, env);
-    if (!session) return unauthorized();
-    return { authenticated: true, session };
-  }
-
-  // Pokud ani jedna z těch funkcí neexistuje, dej mi sem obsah auth.js
-  // (nebo aspoň jeho exporty) a napojím to přesně na tvoji implementaci.
-  throw new Error("Auth helper missing: add verifySession() or getSession() mapping in requireAuth().");
+  return session;
 }
 
 function unauthorized() {
