@@ -11,12 +11,30 @@ function setMsg(text, ok = false) {
   loginMsg.className = "msg " + (ok ? "ok" : "bad");
 }
 
-async function api(path, opts = {}) {
-  const res = await fetch(path, { ...opts, credentials: "include" });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+async function api(url, opts = {}) {
+  const res = await fetch(url, {
+    credentials: "include",
+    ...opts,
+    headers: {
+      ...(opts.headers || {})
+    }
+  });
+
+  const ct = res.headers.get("content-type") || "";
+  const isJson = ct.includes("application/json");
+  const data = isJson ? await res.json().catch(() => null) : await res.text().catch(() => null);
+
+  if (!res.ok) {
+    const msg =
+      (data && data.error) ? data.error :
+      (typeof data === "string" && data) ? data :
+      `HTTP ${res.status}`;
+    throw new Error(msg);
+  }
+
   return data;
 }
+
 
 function showAdmin() {
   loginCard.hidden = true;
@@ -47,7 +65,7 @@ loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   setMsg("");
   try {
-    await api("/api/login", {
+    await ("//login", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ password: passwordEl.value })
@@ -94,7 +112,7 @@ function renderRacers(rows) {
 async function loadRacers() {
   racersMsg.textContent = "Načítám…";
   try {
-    const data = await api("/api/racers");
+    const data = await ("//racers");
     renderRacers(data.racers || []);
     racersMsg.textContent = `Načteno: ${data.count || 0}`;
   } catch (e) {
@@ -121,7 +139,7 @@ importBtn.addEventListener("click", async () => {
   importMsg.textContent = "Importuji…";
 
   try {
-    const res = await fetch("/api/import-xlsx", {
+    const res = await fetch("//import-xlsx", {
       method: "POST",
       body: formData,
       credentials: "include"
