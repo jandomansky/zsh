@@ -27,7 +27,9 @@ function calculateAge(birthDate) {
 }
 
 function categoryOS(gender, birthDate) {
-  const age = calculateAge(birthDate);
+  if (!birthDate || isNaN(birthDate.getTime())) {
+    return null;
+  }
 
   if (gender === "F") {
     if (birthDate <= new Date("1983-01-25")) return "Ž1";
@@ -60,20 +62,24 @@ export async function onRequestPost({ request, env }) {
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet);
 
-    const racers = rows.map(r => {
-      const birthDate = parseDate(r.birth_date || r["Birth Date"]);
-      const gender = r.gender || r["Gender"];
+const racers = rows
+  .map(r => {
+    const birthDate = parseDate(r.birth_date || r["Birth Date"] || r["Datum narození"]);
+    const gender = r.gender || r["Gender"] || r["Pohlaví"];
 
-      return {
-        first_name: r.first_name || r["First Name"],
-        last_name: r.last_name || r["Last Name"],
-        birth_date: birthDate?.toISOString().slice(0, 10),
-        gender,
-        team: r.team || r["Team"],
-        disciplines: r.disciplines || r["Disciplines"],
-        category_os: categoryOS(gender, birthDate)
-      };
-    });
+    if (!birthDate) return null;
+
+    return {
+      first_name: r.first_name || r["First Name"] || r["Jméno"],
+      last_name: r.last_name || r["Last Name"] || r["Příjmení"],
+      birth_date: birthDate.toISOString().slice(0, 10),
+      gender,
+      team: r.team || r["Team"] || r["Tým"],
+      disciplines: r.disciplines || r["Disciplines"] || r["Disciplíny"],
+      category_os: categoryOS(gender, birthDate)
+    };
+  })
+  .filter(Boolean);
 
     // zatím bez startovních čísel
     const inserted = [];
