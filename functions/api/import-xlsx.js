@@ -49,14 +49,6 @@ export async function onRequestPost({ request, env }) {
   try {
     const formData = await request.formData();
     const file = formData.get("file");
-
-    if (!file) {
-      return new Response(JSON.stringify({ ok: false, error: "No file" }), {
-        status: 400,
-        headers: { "content-type": "application/json" }
-      });
-    }
-
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer);
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
