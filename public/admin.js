@@ -321,7 +321,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (passwordEl) passwordEl.value = "";
         setMsg("Přihlášeno.", true);
-        await checkAuth();
+await checkAuth();
+setActiveTab("all");
       } catch (e) {
         setMsg("Chyba: " + (e?.message || e), false);
       }
