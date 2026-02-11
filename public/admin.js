@@ -106,5 +106,36 @@ showAdmin = function () {
   _origShowAdmin();
   loadRacers();
 };
+const xlsxFile = document.getElementById("xlsxFile");
+const importBtn = document.getElementById("importBtn");
+const importMsg = document.getElementById("importMsg");
+
+importBtn.addEventListener("click", async () => {
+  if (!xlsxFile.files.length) {
+    importMsg.textContent = "Vyber XLSX soubor.";
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", xlsxFile.files[0]);
+
+  importMsg.textContent = "Importuji…";
+
+  try {
+    const res = await fetch("/api/import-xlsx", {
+      method: "POST",
+      body: formData,
+      credentials: "include"
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Import failed");
+
+    importMsg.textContent = `Import OK. Vloženo: ${data.inserted}`;
+    await loadRacers();
+  } catch (e) {
+    importMsg.textContent = "Chyba: " + e.message;
+  }
+});
 
 
