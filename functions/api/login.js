@@ -33,6 +33,12 @@ async function readBody(request) {
 
 export async function onRequestPost({ request, env }) {
   try {
+    return new Response(JSON.stringify({
+  ok: false,
+  error: "login.js reached",
+  version: "login-v2-2026-02-11"
+}), { status: 400, headers: { "content-type": "application/json" }});
+
     const body = await readBody(request);
     const password = (body.password || "").toString();
 
