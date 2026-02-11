@@ -82,6 +82,72 @@ document.addEventListener("DOMContentLoaded", () => {
       .replaceAll(">", "&gt;");
   }
 
+  function toTitleDisciplines(s) {
+  const t = String(s || "").toLowerCase().split(",").map(x => x.trim()).filter(Boolean);
+  const out = [];
+  if (t.includes("lyže")) out.push("Lyže");
+  if (t.includes("snowboard")) out.push("Snowboard");
+  if (t.includes("biatlon")) out.push("Biatlon");
+  return out.join(", ");
+}
+
+function displayCategories(r) {
+  const out = [];
+
+  // lyže kategorie (M1/M2/M3/Ž1/Ž2) jen pokud opravdu závodí v lyžích
+  const disc = String(r.disciplines || "").toLowerCase();
+  const hasSki = disc.includes("lyže");
+
+  if (hasSki && r.category_os) out.push(String(r.category_os).trim());
+
+  // snowboard kategorie je jen M nebo Ž, jen pokud závodí ve snowboardu
+  const hasSnow = disc.includes("snowboard");
+  if (hasSnow && r.snowboard_cat) out.push(String(r.snowboard_cat).trim());
+
+  // biatlon je družstev → kategorii nepřidáváme
+
+  return [...new Set(out)].join(", ");
+}
+
+function tokensLower(raw) {
+  return String(raw || "")
+    .toLowerCase()
+    .split(",")
+    .map(x => x.trim())
+    .filter(Boolean);
+}
+
+function hasDisc(r, key) {
+  return tokensLower(r.disciplines).includes(key);
+}
+
+function displayDisciplines(r) {
+  const out = [];
+  if (hasDisc(r, "lyže")) out.push("Lyže");
+  if (hasDisc(r, "snowboard")) out.push("Snowboard");
+  if (hasDisc(r, "biatlon")) out.push("Biatlon");
+  return out.join(", ");
+}
+
+function displayCategories(r) {
+  const out = [];
+
+  // Lyže → věková/pohlavní kategorie M1/M2/M3/Ž1/Ž2 (uložené v category_os)
+  if (hasDisc(r, "lyže") && r.category_os) {
+    out.push(String(r.category_os).trim());
+  }
+
+  // Snowboard → jen M nebo Ž (uložené v snowboard_cat)
+  if (hasDisc(r, "snowboard") && r.snowboard_cat) {
+    out.push(String(r.snowboard_cat).trim());
+  }
+
+  // Biatlon je družstev → kategorie se nevypisuje
+
+  // odstraní duplicity
+  return [...new Set(out)].join(", ");
+}
+  
   function renderRacers(rows) {
   racersBody.innerHTML = rows.map(r => {
     const disc = displayDisciplines(r);
