@@ -1,212 +1,199 @@
-const loginCard = document.getElementById("loginCard");
-const adminCard = document.getElementById("adminCard");
-const logoutBtn = document.getElementById("logoutBtn");
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("admin.js loaded");
 
-const loginForm = document.getElementById("loginForm");
-const passwordEl = document.getElementById("password");
-const loginMsg = document.getElementById("loginMsg");
+  const loginCard = document.getElementById("loginCard");
+  const adminCard = document.getElementById("adminCard");
+  const logoutBtn = document.getElementById("logoutBtn");
 
-function setMsg(text, ok = false) {
-  if (!loginMsg) return; // bezpečně, když element chybí
-  loginMsg.textContent = text;
-  loginMsg.className = "msg " + (ok ? "ok" : "bad");
-}
+  const loginForm = document.getElementById("loginForm");
+  const passwordEl = document.getElementById("password");
+  const loginMsg = document.getElementById("loginMsg");
 
+  const reloadBtn = document.getElementById("reloadBtn");
+  const racersBody = document.getElementById("racersBody");
+  const racersMsg = document.getElementById("racersMsg");
 
-async function api(url, opts = {}) {
-  const res = await fetch(url, {
-    credentials: "include",
-    ...opts,
-    headers: {
-      ...(opts.headers || {})
-    }
-  });
+  const xlsxFile = document.getElementById("xlsxFile");
+  const importBtn = document.getElementById("importBtn");
+  const importMsg = document.getElementById("importMsg");
 
-  const ct = res.headers.get("content-type") || "";
-  const isJson = ct.includes("application/json");
-  const data = isJson ? await res.json().catch(() => null) : await res.text().catch(() => null);
+  const recalculateBtn = document.getElementById("recalculateBtn");
 
-  if (!res.ok) {
-    const msg =
-      (data && data.error) ? data.error :
-      (typeof data === "string" && data) ? data :
-      `HTTP ${res.status}`;
-    throw new Error(msg);
+  function setMsg(text, ok = false) {
+    if (!loginMsg) return;
+    loginMsg.textContent = text;
+    loginMsg.className = "msg " + (ok ? "ok" : "bad");
   }
 
-  return data;
-}
-
-
-function showAdmin() {
-  loginCard.hidden = true;
-  adminCard.hidden = false;
-  logoutBtn.hidden = false;
-
-  // auto-refresh po přihlášení
-  loadRacers();
-}
-
-function showLogin() {
-  loginCard.hidden = false;
-  adminCard.hidden = true;
-  logoutBtn.hidden = true;
-}
-
-async function checkAuth() {
-  try {
-    const me = await api("/api/me");
-    if (me.authenticated) showAdmin();
-    else showLogin();
-  } catch {
-    showLogin();
-  }
-}
-
-loginForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  setMsg("", true);
-  try {
-   await api("/api/login", {
-  method: "POST",
-  headers: { "content-type": "application/json" },
-  body: JSON.stringify({ password: passwordEl.value })
-});
-
-passwordEl.value = "";
-setMsg("Přihlášeno.", true);
-await checkAuth();
-
-  } catch (e) {
-  setMsg("Chyba: " + (e?.message || e), false);
-}
-
-});
-
-// jednoduchý logout endpoint zatím nemáš, zatím cookie jen „dožije“
-// pro teď uděláme jen hard refresh a schováme admin část
-logoutBtn.addEventListener("click", async () => {
-  // zatím pouze lokální “logout” UI
-  showLogin();
-  setMsg("Odhlášení: zatím nemáme endpoint, session vyprší sama.", false);
-});
-
-checkAuth();
-const reloadBtn = document.getElementById("reloadBtn");
-const racersBody = document.getElementById("racersBody");
-const racersMsg = document.getElementById("racersMsg");
-
-const recalculateBtn = document.getElementById("recalculateBtn");
-
-async function recalculateStartNumbers() {
-  if (!recalculateBtn) return;
-
-  recalculateBtn.disabled = true;
-  racersMsg.textContent = "Přepočítávám startovní čísla…";
-
-  try {
-    await api("/api/recalculate-start-numbers", { method: "POST" });
-    racersMsg.textContent = "Hotovo ✅ Startovní čísla přepočítána.";
-    await loadRacers();
-  } catch (e) {
-    racersMsg.textContent = "Chyba přepočtu: " + (e?.message || e);
-  } finally {
-    recalculateBtn.disabled = false;
-  }
-}
-
-if (recalculateBtn) {
-  recalculateBtn.addEventListener("click", recalculateStartNumbers);
-}
-
-function esc(s) {
-  return String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
-}
-
-function renderRacers(rows) {
-  racersBody.innerHTML = rows.map(r => `
-    <tr>
-      <td>${esc(r.last_name)}</td>
-      <td>${esc(r.first_name)}</td>
-      <td>${esc(r.birth_date)}</td>
-      <td>${esc(r.team)}</td>
-      <td>${esc(r.disciplines)}</td>
-      <td>${esc(r.category_os)}</td>
-      <td>${esc(r.start_number)}</td>
-    </tr>
-  `).join("");
-}
-
-async function loadRacers() {
-  racersMsg.textContent = "Načítám…";
-  try {
-    const data = await api("/api/racers");
-    renderRacers(data.racers || []);
-    racersMsg.textContent = `Načteno: ${data.count || 0}`;
-  } catch (e) {
-    racersMsg.textContent = "Chyba načítání: " + e.message;
-  }
-}
-
-reloadBtn.addEventListener("click", loadRacers);
-
-
-const xlsxFile = document.getElementById("xlsxFile");
-const importBtn = document.getElementById("importBtn");
-const importMsg = document.getElementById("importMsg");
-
-importBtn.addEventListener("click", async () => {
-  if (!xlsxFile.files.length) {
-    importMsg.textContent = "Vyber XLSX soubor.";
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("file", xlsxFile.files[0]);
-
-  importMsg.textContent = "Importuji…";
-
-  try {
-    const res = await fetch("/api/import-xlsx", {
-      method: "POST",
-      body: formData,
-      credentials: "include"
+  async function api(url, opts = {}) {
+    const res = await fetch(url, {
+      credentials: "include",
+      ...opts,
+      headers: {
+        ...(opts.headers || {}),
+      },
     });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Import failed");
+    const ct = res.headers.get("content-type") || "";
+    const isJson = ct.includes("application/json");
+    const data = isJson
+      ? await res.json().catch(() => null)
+      : await res.text().catch(() => null);
 
-    importMsg.textContent = `Import OK. Vloženo: ${data.inserted}`;
-    await loadRacers();
-  } catch (e) {
-    importMsg.textContent = "Chyba: " + e.message;
-  }
-});
-// --- DEBUG + Recalculate start numbers ---
-const recalculateBtn = document.getElementById("recalculateBtn");
-
-if (!recalculateBtn) {
-  console.warn("recalculateBtn not found in DOM (check id in admin.html)");
-} else {
-  recalculateBtn.addEventListener("click", async () => {
-    // 1) potvrzení, že se klik chytá
-    console.log("Recalculate clicked");
-    alert("Klik OK – volám /api/recalculate-start-numbers");
-
-    // 2) viditelný status (ať nemusíš scrollovat pod tabulku)
-    if (racersMsg) racersMsg.textContent = "Přepočítávám startovní čísla…";
-
-    try {
-      const data = await api("/api/recalculate-start-numbers", { method: "POST" });
-      console.log("Recalculate response:", data);
-
-      if (racersMsg) racersMsg.textContent = "Hotovo ✅ Startovní čísla přepočítána.";
-      await loadRacers();
-    } catch (e) {
-      console.error("Recalculate error:", e);
-      if (racersMsg) racersMsg.textContent = "Chyba přepočtu: " + (e?.message || e);
-      alert("Chyba: " + (e?.message || e));
+    if (!res.ok) {
+      const msg =
+        (data && data.error) ? data.error :
+        (typeof data === "string" && data) ? data :
+        `HTTP ${res.status}`;
+      throw new Error(msg);
     }
-  });
-}
 
+    return data;
+  }
+
+  function showAdmin() {
+    if (loginCard) loginCard.hidden = true;
+    if (adminCard) adminCard.hidden = false;
+    if (logoutBtn) logoutBtn.hidden = false;
+    loadRacers();
+  }
+
+  function showLogin() {
+    if (loginCard) loginCard.hidden = false;
+    if (adminCard) adminCard.hidden = true;
+    if (logoutBtn) logoutBtn.hidden = true;
+  }
+
+  async function checkAuth() {
+    try {
+      const me = await api("/api/me");
+      if (me.authenticated) showAdmin();
+      else showLogin();
+    } catch (e) {
+      console.warn("checkAuth failed:", e);
+      showLogin();
+    }
+  }
+
+  function esc(s) {
+    return String(s ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;");
+  }
+
+  function renderRacers(rows) {
+    if (!racersBody) return;
+    racersBody.innerHTML = rows.map(r => `
+      <tr>
+        <td>${esc(r.last_name)}</td>
+        <td>${esc(r.first_name)}</td>
+        <td>${esc(r.birth_date)}</td>
+        <td>${esc(r.team)}</td>
+        <td>${esc(r.disciplines)}</td>
+        <td>${esc(r.category_os)}</td>
+        <td>${esc(r.start_number)}</td>
+      </tr>
+    `).join("");
+  }
+
+  async function loadRacers() {
+    if (racersMsg) racersMsg.textContent = "Načítám…";
+    try {
+      const data = await api("/api/racers");
+      renderRacers(data.racers || []);
+      if (racersMsg) racersMsg.textContent = `Načteno: ${data.count || 0}`;
+    } catch (e) {
+      if (racersMsg) racersMsg.textContent = "Chyba načítání: " + e.message;
+    }
+  }
+
+  // --- LOGIN ---
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      setMsg("Přihlašuji…", true);
+
+      try {
+        await api("/api/login", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ password: passwordEl?.value || "" }),
+        });
+
+        if (passwordEl) passwordEl.value = "";
+        setMsg("Přihlášeno.", true);
+        await checkAuth();
+      } catch (e) {
+        setMsg("Chyba: " + (e?.message || e), false);
+      }
+    });
+  } else {
+    console.error("loginForm not found");
+  }
+
+  // --- LOGOUT (UI only) ---
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      showLogin();
+      setMsg("Odhlášení: zatím nemáme endpoint, session vyprší sama.", false);
+    });
+  }
+
+  // --- RELOAD ---
+  if (reloadBtn) reloadBtn.addEventListener("click", loadRacers);
+
+  // --- RECALCULATE ---
+  if (recalculateBtn) {
+    recalculateBtn.addEventListener("click", async () => {
+      recalculateBtn.disabled = true;
+      if (racersMsg) racersMsg.textContent = "Přepočítávám startovní čísla…";
+
+      try {
+        const data = await api("/api/recalculate-start-numbers", { method: "POST" });
+        console.log("recalculate ok:", data);
+        if (racersMsg) racersMsg.textContent = "Hotovo ✅ Startovní čísla přepočítána.";
+        await loadRacers();
+      } catch (e) {
+        console.error("recalculate error:", e);
+        if (racersMsg) racersMsg.textContent = "Chyba přepočtu: " + (e?.message || e);
+      } finally {
+        recalculateBtn.disabled = false;
+      }
+    });
+  }
+
+  // --- IMPORT XLSX ---
+  if (importBtn) {
+    importBtn.addEventListener("click", async () => {
+      if (!xlsxFile || !xlsxFile.files || !xlsxFile.files.length) {
+        if (importMsg) importMsg.textContent = "Vyber XLSX soubor.";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", xlsxFile.files[0]);
+
+      if (importMsg) importMsg.textContent = "Importuji…";
+
+      try {
+        const res = await fetch("/api/import-xlsx", {
+          method: "POST",
+          body: formData,
+          credentials: "include",
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "Import failed");
+
+        if (importMsg) importMsg.textContent = `Import OK. Vloženo: ${data.inserted}`;
+        await loadRacers();
+      } catch (e) {
+        if (importMsg) importMsg.textContent = "Chyba: " + e.message;
+      }
+    });
+  }
+
+  // start
+  checkAuth();
+});
