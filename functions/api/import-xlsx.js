@@ -2,45 +2,40 @@ import * as XLSX from "../../vendor/xlsx.mjs";
 
 const DECISION_DATE = new Date("2024-01-25");
 
+// ✅ TADY NASTAV „ZADÁNÍ“ (pořadí kategorií / disciplín)
+const CATEGORY_ORDER = ["M1", "M2", "M3", "Ž1", "Ž2"]; // uprav dle zadání
+const DISCIPLINE_ORDER = ["M1", "M2", "M3", "Ž1", "Ž2"]; // u tebe to vypadá, že "Lyže" = např. M1/M2/...
+
+function orderIndex(list, value) {
+  const v = String(value ?? "").trim();
+  const idx = list.indexOf(v);
+  return idx === -1 ? 9999 : idx;
+}
+
 // Excel serial -> Date, string -> Date
 function parseDate(value) {
   if (value === undefined || value === null || value === "") return null;
-
-  // Already a Date
   if (value instanceof Date) return value;
 
-  // Excel serial date number
   if (typeof value === "number" && Number.isFinite(value)) {
-    // Excel epoch (1899-12-30) => Unix epoch offset 25569 days
     const utcDays = Math.floor(value - 25569);
     const utcValue = utcDays * 86400;
     const d = new Date(utcValue * 1000);
     return Number.isNaN(d.getTime()) ? null : d;
   }
 
-  // String
   const d = new Date(String(value).trim());
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-function calculateAge(birthDate) {
-  let age = DECISION_DATE.getFullYear() - birthDate.getFullYear();
-  const m = DECISION_DATE.getMonth() - birthDate.getMonth();
-  if (m < 0 || (m === 0 && DECISION_DATE.getDate() < birthDate.getDate())) age--;
-  return age;
-}
-
-// Kategorie OS dle zadání (k datu 25.1.2024)
 function categoryOS(gender, birthDate) {
   if (!birthDate || Number.isNaN(birthDate.getTime())) return null;
 
-  // ženy
   if (gender === "F") {
     if (birthDate <= new Date("1983-01-25")) return "Ž1";
     return "Ž2";
   }
 
-  // muži
   if (gender === "M") {
     if (birthDate <= new Date("1973-01-25")) return "M1";
     if (birthDate <= new Date("1988-01-25")) return "M2";
@@ -50,7 +45,6 @@ function categoryOS(gender, birthDate) {
   return null;
 }
 
-// „Lacina Pavel“ -> { last_name: "Lacina", first_name: "Pavel" }
 function splitName(fullName) {
   const raw = String(fullName || "").trim().replace(/\s+/g, " ");
   if (!raw) return null;
@@ -59,13 +53,46 @@ function splitName(fullName) {
   return { last_name: parts[0], first_name: parts.slice(1).join(" ") };
 }
 
-// velmi hrubý odhad (když v XLSX není pohlaví)
-// později klidně nahradíme explicitním sloupcem
 function guessGender(firstName) {
   const fn = String(firstName || "").trim();
   if (!fn) return "M";
-  // pozor: není to 100% (např. Nikita), ale pro start to stačí
   return fn.endsWith("a") ? "F" : "M";
+}
+
+// ✅ Seřadíme dle zadání a přidělíme start_number 1..N
+function assignStartNumbers(racers) {
+  racers.sort((a, b) => {
+    // 1) kategorie OS
+    const c1 = orderIndex(CATEGORY_ORDER, a.category_os);
+    const c2 = orderIndex(CATEGORY_ORDER, b.category_os);
+    if (c1 !== c2) return c1 - c2;
+
+    // 2) disciplína (pokud je podle zadání relevantní)
+    const d1 = orderIndex(DISCIPLINE_ORDER, a.disciplines);
+    const d2 = orderIndex(DISCIPLINE_ORDER, b.disciplines);
+    if (d1 !== d2) return d1 - d2;
+
+    // 3) tým
+    const t1 = String(a.team ?? "");
+    const t2 = String(b.team ?? "");
+    const tc = t1.localeCompare(t2, "cs", { sensitivity: "base" });
+    if (tc !== 0) return tc;
+
+    // 4) příjmení, jméno
+    const ln = String(a.last_name ?? "").localeCompare(String(b.last_name ?? ""), "cs", { sensitivity: "base" });
+    if (ln !== 0) return ln;
+
+    const fn = String(a.first_name ?? "").localeCompare(String(b.first_name ?? ""), "cs", { sensitivity: "base" });
+    if (fn !== 0) return fn;
+
+    // 5) narození (stabilní tie-break)
+    return String(a.birth_date ?? "").localeCompare(String(b.birth_date ?? ""));
+  });
+
+  for (let i = 0; i < racers.length; i++) {
+    racers[i].start_number = i + 1;
+  }
+  return racers;
 }
 
 export async function onRequestPost({ request, env }) {
@@ -93,13 +120,12 @@ export async function onRequestPost({ request, env }) {
     const sheet = wb.Sheets[sheetName];
     const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-    // Mapování na tvoje hlavičky
-    const racers = rows
+    let racers = rows
       .map(r => {
         const fullName = r["Závodník"];
         const team = r["Tým"];
         const birthDate = parseDate(r["dat. nar."]);
-        const disciplines = r["Lyže"];
+        const disciplines = r["Lyže"]; // u tebe zatím vypadá jako M1/M2/M3/Ž1...
 
         const nameParts = splitName(fullName);
         if (!nameParts || !birthDate) return null;
@@ -114,7 +140,8 @@ export async function onRequestPost({ request, env }) {
           gender,
           team: String(team || "").trim() || null,
           disciplines: String(disciplines || "").trim() || null,
-          category_os: categoryOS(gender, birthDate)
+          category_os: categoryOS(gender, birthDate),
+          start_number: null
         };
       })
       .filter(Boolean);
@@ -129,19 +156,20 @@ export async function onRequestPost({ request, env }) {
       });
     }
 
-    // ✅ TADY je to správné místo:
-    // smažeme stará data až ve chvíli, kdy víme, že máme validní nové řádky
+    // ✅ přiděl startovní čísla dle zadání
+    racers = assignStartNumbers(racers);
+
+    // ✅ smaž stará data (aby se nedublovalo)
     await env.DB.prepare("DELETE FROM racers").run();
 
-    // Vložíme do DB (zatím vždy INSERT; deduplikaci uděláme později)
-    // Pro rychlost použijeme batch (D1 umí batch)
+    // ✅ vlož nové
     const statements = racers.map(r =>
       env.DB.prepare(`
         INSERT INTO racers (
           first_name, last_name, birth_date, gender,
-          team, disciplines, category_os
+          team, disciplines, category_os, start_number
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `).bind(
         r.first_name,
         r.last_name,
@@ -149,7 +177,8 @@ export async function onRequestPost({ request, env }) {
         r.gender,
         r.team,
         r.disciplines,
-        r.category_os
+        r.category_os,
+        r.start_number
       )
     );
 
@@ -157,7 +186,8 @@ export async function onRequestPost({ request, env }) {
 
     return new Response(JSON.stringify({
       ok: true,
-      inserted: racers.length
+      inserted: racers.length,
+      start_numbers: { from: 1, to: racers.length }
     }), {
       headers: { "content-type": "application/json" }
     });
