@@ -15,3 +15,5 @@ label{display:block;margin:10px 0 6px}
 .tbl{width:100%;border-collapse:collapse}
 .tbl th,.tbl td{padding:10px;border-bottom:1px solid #eee;text-align:left;white-space:nowrap}
 .tbl th{background:#fafafa}
+.row { position: relative; z-index: 5; }
+.tableWrap { position: relative; z-index: 1; }
