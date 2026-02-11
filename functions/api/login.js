@@ -1,9 +1,9 @@
-import { signSession, setSessionCookie } from "../_shared/auth.js";
+import { signSession } from "../_shared/auth.js";
 
 export async function onRequestPost({ request, env }) {
   try {
-    const body = await request.json();
-    const { password } = body || {};
+    const body = await request.json().catch(() => ({}));
+    const password = body?.password;
 
     if (!password) {
       return new Response(JSON.stringify({ ok: false, error: "Missing password" }), {
@@ -19,29 +19,28 @@ export async function onRequestPost({ request, env }) {
       });
     }
 
-    const token = await signSession(env, {
-      sub: "admin",
-      iat: Date.now(),
-      exp: Date.now() + 12 * 60 * 60 * 1000,
-    });
+    const token = await signSession({ user: "admin" }, env.SESSION_SECRET);
+
+    // cookie pro Pages: SameSite=Lax stačí, Secure povinné na https
+    const cookie = [
+      `session=${token}`,
+      "Path=/",
+      "HttpOnly",
+      "Secure",
+      "SameSite=Lax",
+      "Max-Age=604800" // 7 dní
+    ].join("; ");
 
     return new Response(JSON.stringify({ ok: true }), {
       headers: {
         "content-type": "application/json",
-        "set-cookie": setSessionCookie(token),
+        "set-cookie": cookie
       }
     });
-
   } catch (e) {
-  return new Response(JSON.stringify({
-    ok: false,
-    error: "Bad request",
-    message: String(e?.message || e),
-    hasSecret: !!env.SESSION_SECRET,
-  }), {
-    status: 400,
-    headers: { "content-type": "application/json" }
-  });
-}
-
+    return new Response(JSON.stringify({ ok: false, error: "Bad request", message: String(e?.message || e) }), {
+      status: 400,
+      headers: { "content-type": "application/json" }
+    });
+  }
 }
