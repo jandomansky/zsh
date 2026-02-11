@@ -22,7 +22,11 @@ function showAdmin() {
   loginCard.hidden = true;
   adminCard.hidden = false;
   logoutBtn.hidden = false;
+
+  // auto-refresh po přihlášení
+  loadRacers();
 }
+
 function showLogin() {
   loginCard.hidden = false;
   adminCard.hidden = true;
@@ -100,12 +104,7 @@ async function loadRacers() {
 
 reloadBtn.addEventListener("click", loadRacers);
 
-// po přihlášení automaticky načti
-const _origShowAdmin = showAdmin;
-showAdmin = function () {
-  _origShowAdmin();
-  loadRacers();
-};
+
 const xlsxFile = document.getElementById("xlsxFile");
 const importBtn = document.getElementById("importBtn");
 const importMsg = document.getElementById("importMsg");
