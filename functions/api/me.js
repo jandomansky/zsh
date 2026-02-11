@@ -2,7 +2,7 @@ import { getCookie, verifySession } from "../_shared/auth.js";
 
 export async function onRequestGet({ request, env }) {
   const token = getCookie(request);
-  const session = await verifySession(env, token);
+  const session = await verifySession(token, env.SESSION_SECRET);
 
   if (!session) {
     return new Response(JSON.stringify({ ok: false, authenticated: false }), {
