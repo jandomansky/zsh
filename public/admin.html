@@ -8,12 +8,14 @@
 </head>
 <body>
   <main class="wrap">
+
     <header class="top">
       <h1>ZSH – Admin</h1>
       <button id="logoutBtn" class="btn secondary" hidden>Odhlásit</button>
     </header>
 
-    <section id="loginCard" class="card">
+    <!-- ✅ Užší login karta -->
+    <section id="loginCard" class="card login">
       <h2>Přihlášení</h2>
       <form id="loginForm">
         <label for="password">Heslo</label>
@@ -23,49 +25,50 @@
       </form>
     </section>
 
-   <section id="adminCard" class="card" hidden>
-  <div class="row" style="justify-content:space-between;width:100%;">
-  <div class="status">Přihlášeno <span aria-hidden="true">✅</span></div>
-</div>
+    <!-- ✅ Admin část -->
+    <section id="adminCard" class="card" hidden>
 
-  <div class="row">
-    <button id="reloadBtn" class="btn">Načíst závodníky</button>
-    <button id="recalculateBtn" class="btn secondary">
-      Přepočítat startovní čísla
-    </button>
-  </div>
+      <div class="row" style="justify-content:space-between;width:100%;">
+        <div class="status">Přihlášeno <span aria-hidden="true">✅</span></div>
+      </div>
 
-  <div class="row">
-    <h3>Import XLSX</h3>
-    <input type="file" id="xlsxFile" accept=".xlsx" />
-    <button id="importBtn" class="btn">Importovat</button>
-    <p id="importMsg" class="hint"></p>
-  </div>
+      <div class="row">
+        <button id="reloadBtn" class="btn">Načíst závodníky</button>
+        <button id="recalculateBtn" class="btn secondary">
+          Přepočítat startovní čísla
+        </button>
+      </div>
 
+      <div class="row">
+        <h3>Import XLSX</h3>
+        <input type="file" id="xlsxFile" accept=".xlsx" />
+        <button id="importBtn" class="btn">Importovat</button>
+        <p id="importMsg" class="hint"></p>
+      </div>
 
-</div>
+      <div class="tableWrap">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Příjmení</th>
+              <th>Jméno</th>
+              <th>Narození</th>
+              <th>Tým</th>
+              <th>Disciplíny</th>
+              <th>Kategorie</th>
+              <th>Start. číslo</th>
+            </tr>
+          </thead>
+          <tbody id="racersBody"></tbody>
+        </table>
+      </div>
 
-<div class="tableWrap">
-  <table class="tbl">
-    <thead>
-      <tr>
-        <th>Příjmení</th>
-        <th>Jméno</th>
-        <th>Narození</th>
-        <th>Tým</th>
-        <th>Disciplíny</th>
-        <th>Kategorie</th>
-        <th>Start. číslo</th>
-      </tr>
-    </thead>
-    <tbody id="racersBody"></tbody>
-  </table>
-</div>
-<p id="racersMsg" class="hint"></p>
+      <p id="racersMsg" class="hint"></p>
 
     </section>
+
   </main>
 
- <script src="/admin.js?v=20260211-1"></script>
+  <script src="/admin.js?v=20260211-1"></script>
 </body>
 </html>
