@@ -492,5 +492,5 @@ document.addEventListener("DOMContentLoaded", () => {
   checkAuth();
 
   // default tab
-  setActiveTab("ski");
+  setActiveTab("all");
 });
