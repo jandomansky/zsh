@@ -130,30 +130,54 @@ function hasBiatlon(r) {
   return s.includes("biat");
 }
 
+function tokens(raw) {
+  return String(raw || "")
+    .toLowerCase()
+    .split(/[,;/|]+/)
+    .map(x => x.trim())
+    .filter(Boolean);
+}
+
+function genderFromRow(r) {
+  return String(r.category_os || "").startsWith("Ž") ? "Ž" : "M";
+}
+
 function displayDisciplines(r) {
+  const t = tokens(r.disciplines);
   const out = [];
-  if (hasSki(r)) out.push("Lyže");
-  if (hasSnowboard(r)) out.push("Snowboard");
-  if (hasBiatlon(r)) out.push("Biatlon");
+
+  if (t.includes("lyže")) out.push("Lyže");
+  if (t.includes("snowboard")) out.push("Snowboard");
+  if (t.includes("biatlon")) out.push("Biatlon");
+
   return out.join(", ");
 }
 
 function displayCategories(r) {
+  const t = tokens(r.disciplines);
   const out = [];
   const catOS = String(r.category_os || "").trim();
+  const gender = genderFromRow(r);
 
-  // Lyže: věková/pohlavní kat. OS
-  if (hasSki(r) && catOS) out.push(catOS);
+  // Lyže → věková kategorie
+  if (t.includes("lyže") && catOS) {
+    out.push(catOS);
+  }
 
-  // Snowboard: jen M nebo Ž
-  if (hasSnowboard(r)) out.push(genderFromRow(r));
+  // Snowboard → jen M / Ž
+  if (t.includes("snowboard")) {
+    out.push(gender);
+  }
 
-  // Biatlon: typicky stejná kat. jako OS (pokud chcete jinak, řekni a upravím)
-  if (hasBiatlon(r) && catOS) out.push(catOS);
+  // Biatlon → stejná kat. jako OS (pokud chcete jinak, upravíme)
+  if (t.includes("biatlon") && catOS) {
+    out.push(catOS);
+  }
 
-  // odstranění duplicit (např. catOS dvakrát)
+  // odstraní duplicity
   return [...new Set(out)].join(", ");
 }
+
 
 
   async function loadRacers() {
