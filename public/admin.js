@@ -65,7 +65,7 @@ loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   setMsg("");
   try {
-    await ("//login", {
+   await api("/api/login", …)
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ password: passwordEl.value })
@@ -112,7 +112,7 @@ function renderRacers(rows) {
 async function loadRacers() {
   racersMsg.textContent = "Načítám…";
   try {
-    const data = await ("//racers");
+    const data = await api("/api/racers");
     renderRacers(data.racers || []);
     racersMsg.textContent = `Načteno: ${data.count || 0}`;
   } catch (e) {
@@ -139,7 +139,7 @@ importBtn.addEventListener("click", async () => {
   importMsg.textContent = "Importuji…";
 
   try {
-    const res = await fetch("//import-xlsx", {
+    const res = await fetch("/api/import-xlsx", {
       method: "POST",
       body: formData,
       credentials: "include"
