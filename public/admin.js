@@ -17,7 +17,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const importBtn = document.getElementById("importBtn");
   const importMsg = document.getElementById("importMsg");
 
+  const tabSki = document.getElementById("tabSki");
+  const tabSnow = document.getElementById("tabSnow");
+  const tabBiat = document.getElementById("tabBiat");
+
+  const panelSki = document.getElementById("panelSki");
+  const panelSnow = document.getElementById("panelSnow");
+  const panelBiat = document.getElementById("panelBiat");
+
+  const skiBody = document.getElementById("skiBody");
+  const snowBody = document.getElementById("snowBody");
+  const biatBody = document.getElementById("biatBody");
+
+  const skiMsg = document.getElementById("skiMsg");
+  const snowMsg = document.getElementById("snowMsg");
+  const biatMsg = document.getElementById("biatMsg");
+
   const recalculateBtn = document.getElementById("recalculateBtn");
+
+  // ======= STATE =======
+  const state = { racers: [] };
 
   function setMsg(text, ok = false) {
     if (!loginMsg) return;
@@ -141,12 +160,129 @@ document.addEventListener("DOMContentLoaded", () => {
     }).join("");
   }
 
+  function byStart(a, b) {
+    const aa = Number(a.start_number ?? 999999);
+    const bb = Number(b.start_number ?? 999999);
+    return aa - bb;
+  }
+
+  function fullName(r) {
+    return `${r.last_name || ""} ${r.first_name || ""}`.trim();
+  }
+
+  function renderSkiPanel() {
+    if (!skiBody) return;
+
+    const rows = state.racers
+      .filter(r => String(r.disciplines || "").toLowerCase().includes("lyže"))
+      .slice()
+      .sort(byStart);
+
+    skiBody.innerHTML = rows.map(r => `
+      <tr>
+        <td><b>${esc(r.start_number)}</b></td>
+        <td>${esc(fullName(r))}</td>
+        <td>${esc(r.birth_date)}</td>
+        <td>${esc(r.team)}</td>
+        <td>${esc(r.category_os || "")}</td>
+        <td><input class="inputTime" data-id="${esc(r.id)}" data-d="ski" data-k="1" value="${esc(r.ski_time_1 || "")}" placeholder="např. 01:12.34"></td>
+        <td><input class="inputTime" data-id="${esc(r.id)}" data-d="ski" data-k="2" value="${esc(r.ski_time_2 || "")}" placeholder="např. 01:12.34"></td>
+        <td><button class="btn smallBtn" data-save="1" data-id="${esc(r.id)}" data-d="ski" type="button">Uložit</button></td>
+      </tr>
+    `).join("");
+
+    if (skiMsg) skiMsg.textContent = `Lyže: ${rows.length}`;
+  }
+
+  function renderSnowPanel() {
+    if (!snowBody) return;
+
+    const rows = state.racers
+      .filter(r => String(r.disciplines || "").toLowerCase().includes("snowboard"))
+      .slice()
+      .sort(byStart);
+
+    snowBody.innerHTML = rows.map(r => `
+      <tr>
+        <td><b>${esc(r.start_number)}</b></td>
+        <td>${esc(fullName(r))}</td>
+        <td>${esc(r.birth_date)}</td>
+        <td>${esc(r.team)}</td>
+        <td>${esc(r.snowboard_cat || "")}</td>
+        <td><input class="inputTime" data-id="${esc(r.id)}" data-d="snowboard" data-k="1" value="${esc(r.snowboard_time_1 || "")}" placeholder="např. 01:12.34"></td>
+        <td><input class="inputTime" data-id="${esc(r.id)}" data-d="snowboard" data-k="2" value="${esc(r.snowboard_time_2 || "")}" placeholder="např. 01:12.34"></td>
+        <td><button class="btn smallBtn" data-save="1" data-id="${esc(r.id)}" data-d="snowboard" type="button">Uložit</button></td>
+      </tr>
+    `).join("");
+
+    if (snowMsg) snowMsg.textContent = `Snowboard: ${rows.length}`;
+  }
+
+  function cssEscapeSafe(value) {
+    // Edge/Chrome mají CSS.escape, ale pro jistotu fallback
+    if (window.CSS && typeof window.CSS.escape === "function") return window.CSS.escape(value);
+    return String(value).replace(/["\\]/g, "\\$&");
+  }
+
+  async function loadBiatTeams() {
+    if (!biatBody) return;
+    if (biatMsg) biatMsg.textContent = "Načítám týmy…";
+
+    try {
+      const data = await api("/api/biathlon-teams");
+      const teams = data.teams || [];
+
+      biatBody.innerHTML = teams.map(t => `
+        <tr>
+          <td><b>${esc(t.team)}</b></td>
+          <td><input class="inputTime" data-team="${esc(t.team)}" value="${esc(t.time || "")}" placeholder="např. 12:34.56"></td>
+          <td><button class="btn smallBtn" data-biat-save="1" data-team="${esc(t.team)}" type="button">Uložit</button></td>
+        </tr>
+      `).join("");
+
+      if (biatMsg) biatMsg.textContent = `Biatlon týmy: ${teams.length}`;
+    } catch (e) {
+      if (biatMsg) biatMsg.textContent = "Chyba: " + e.message;
+    }
+  }
+
+  // ======= TABY =======
+  function setActiveTab(which) {
+    const map = [
+      ["ski", tabSki, panelSki],
+      ["snow", tabSnow, panelSnow],
+      ["biat", tabBiat, panelBiat],
+    ];
+
+    for (const [key, btn, panel] of map) {
+      if (btn) btn.classList.toggle("active", key === which);
+      if (panel) panel.hidden = key !== which;
+    }
+
+    if (which === "ski") renderSkiPanel();
+    if (which === "snow") renderSnowPanel();
+    if (which === "biat") loadBiatTeams();
+  }
+
+  if (tabSki) tabSki.addEventListener("click", () => setActiveTab("ski"));
+  if (tabSnow) tabSnow.addEventListener("click", () => setActiveTab("snow"));
+  if (tabBiat) tabBiat.addEventListener("click", () => setActiveTab("biat"));
+
+  // ======= LOAD RACERS =======
   async function loadRacers() {
     if (racersMsg) racersMsg.textContent = "Načítám…";
     try {
       const data = await api("/api/racers");
-      renderRacers(data.racers || []);
+
+      state.racers = data.racers || [];
+
+      renderRacers(state.racers);
       if (racersMsg) racersMsg.textContent = `Načteno: ${data.count || 0}`;
+
+      // překresli aktivní panel
+      if (tabSnow?.classList.contains("active")) renderSnowPanel();
+      else if (tabBiat?.classList.contains("active")) loadBiatTeams();
+      else renderSkiPanel();
     } catch (e) {
       if (racersMsg) racersMsg.textContent = "Chyba načítání: " + e.message;
     }
@@ -194,11 +330,13 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         await api("/api/delete-racers", { method: "POST" });
 
-        // vyčistit UI hned
+        state.racers = [];
         renderRacers([]);
+        renderSkiPanel();
+        renderSnowPanel();
+
         if (racersMsg) racersMsg.textContent = "Smazáno. Čekám na nový XLSX import.";
 
-        // volitelně zrušit vybraný soubor
         if (xlsxFile) xlsxFile.value = "";
         if (importMsg) importMsg.textContent = "";
       } catch (e) {
@@ -263,6 +401,80 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // ======= ULOŽENÍ ČASŮ (delegace) =======
+  document.addEventListener("click", async (e) => {
+    const btn = e.target?.closest?.("button[data-save='1']");
+    if (!btn) return;
+
+    const id = btn.getAttribute("data-id");
+    const discipline = btn.getAttribute("data-d"); // "ski" | "snowboard"
+
+    const t1 = document.querySelector(
+      `input.inputTime[data-id="${cssEscapeSafe(id)}"][data-d="${discipline}"][data-k="1"]`
+    )?.value || "";
+
+    const t2 = document.querySelector(
+      `input.inputTime[data-id="${cssEscapeSafe(id)}"][data-d="${discipline}"][data-k="2"]`
+    )?.value || "";
+
+    btn.disabled = true;
+    try {
+      await api("/api/results", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          id,
+          discipline,
+          time1: t1.trim() || null,
+          time2: t2.trim() || null,
+        }),
+      });
+
+      // update lokálně ve state
+      const r = state.racers.find(x => String(x.id) === String(id));
+      if (r) {
+        if (discipline === "ski") {
+          r.ski_time_1 = t1;
+          r.ski_time_2 = t2;
+        } else if (discipline === "snowboard") {
+          r.snowboard_time_1 = t1;
+          r.snowboard_time_2 = t2;
+        }
+      }
+    } catch (err) {
+      alert("Chyba ukládání: " + (err?.message || err));
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.addEventListener("click", async (e) => {
+    const btn = e.target?.closest?.("button[data-biat-save='1']");
+    if (!btn) return;
+
+    const team = btn.getAttribute("data-team");
+    const inp = document.querySelector(
+      `input.inputTime[data-team="${cssEscapeSafe(team)}"]`
+    );
+    const time = inp?.value || "";
+
+    btn.disabled = true;
+    try {
+      await api("/api/biathlon-teams", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ team, time: time.trim() || null }),
+      });
+    } catch (err) {
+      alert("Chyba ukládání: " + (err?.message || err));
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
   // start
   checkAuth();
+
+  // default tab (když už je přihlášen)
+  setActiveTab("ski");
 });
