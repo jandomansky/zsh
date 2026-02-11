@@ -83,19 +83,78 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderRacers(rows) {
-    if (!racersBody) return;
-    racersBody.innerHTML = rows.map(r => `
+  racersBody.innerHTML = rows.map(r => {
+    const disc = displayDisciplines(r);
+    const cats = displayCategories(r);
+
+    return `
       <tr>
         <td>${esc(r.last_name)}</td>
         <td>${esc(r.first_name)}</td>
         <td>${esc(r.birth_date)}</td>
         <td>${esc(r.team)}</td>
-        <td>${esc(r.disciplines)}</td>
-        <td>${esc(r.category_os)}</td>
+        <td>${esc(disc)}</td>
+        <td>${esc(cats)}</td>
         <td>${esc(r.start_number)}</td>
       </tr>
-    `).join("");
-  }
+    `;
+  }).join("");
+}
+
+function tokens(raw) {
+  // dovolí "Ž1", "Ž1, biatlon", "M2; snow", "M3 / biat"
+  return String(raw || "")
+    .split(/[,;/|]+/)
+    .map(x => x.trim())
+    .filter(Boolean);
+}
+
+function genderFromRow(r) {
+  // primárně z category_os (u tebe vždy existuje)
+  return String(r.category_os || "").startsWith("Ž") ? "Ž" : "M";
+}
+
+function hasSki(r) {
+  const SKI_CATS = new Set(["M1", "M2", "M3", "Ž1", "Ž2"]);
+  const t = tokens(r.disciplines);
+  return t.some(x => SKI_CATS.has(x)) || SKI_CATS.has(String(r.category_os || "").trim());
+}
+
+function hasSnowboard(r) {
+  const s = String(r.disciplines || "").toLowerCase();
+  return s.includes("snow");
+}
+
+function hasBiatlon(r) {
+  const s = String(r.disciplines || "").toLowerCase();
+  return s.includes("biat");
+}
+
+function displayDisciplines(r) {
+  const out = [];
+  if (hasSki(r)) out.push("Lyže");
+  if (hasSnowboard(r)) out.push("Snowboard");
+  if (hasBiatlon(r)) out.push("Biatlon");
+  return out.join(", ");
+}
+
+function displayCategories(r) {
+  const out = [];
+  const catOS = String(r.category_os || "").trim();
+
+  // Lyže: věková/pohlavní kat. OS
+  if (hasSki(r) && catOS) out.push(catOS);
+
+  // Snowboard: jen M nebo Ž
+  if (hasSnowboard(r)) out.push(genderFromRow(r));
+
+  // Biatlon: typicky stejná kat. jako OS (pokud chcete jinak, řekni a upravím)
+  if (hasBiatlon(r) && catOS) out.push(catOS);
+
+  // odstranění duplicit (např. catOS dvakrát)
+  return [...new Set(out)].join(", ");
+}
+
 
   async function loadRacers() {
     if (racersMsg) racersMsg.textContent = "Načítám…";
