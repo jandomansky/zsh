@@ -20,10 +20,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const tabSki = document.getElementById("tabSki");
   const tabSnow = document.getElementById("tabSnow");
   const tabBiat = document.getElementById("tabBiat");
+  const tabAll = document.getElementById("tabAll");
 
   const panelSki = document.getElementById("panelSki");
   const panelSnow = document.getElementById("panelSnow");
   const panelBiat = document.getElementById("panelBiat");
+  const panelAll = document.getElementById("panelAll");
 
   const skiBody = document.getElementById("skiBody");
   const snowBody = document.getElementById("snowBody");
@@ -106,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return String(raw || "")
       .toLowerCase()
       .split(",")
-      .map(x => x.trim())
+      .map((x) => x.trim())
       .filter(Boolean);
   }
 
@@ -126,14 +128,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const out = [];
 
     // Lyže → M1/M2/M3/Ž1/Ž2 (jen pokud závodí v lyžích)
-    if (hasDisc(r, "lyže") && r.category_os) {
-      out.push(String(r.category_os).trim());
-    }
+    if (hasDisc(r, "lyže") && r.category_os) out.push(String(r.category_os).trim());
 
     // Snowboard → jen M/Ž (jen pokud závodí ve snowboardu)
-    if (hasDisc(r, "snowboard") && r.snowboard_cat) {
-      out.push(String(r.snowboard_cat).trim());
-    }
+    if (hasDisc(r, "snowboard") && r.snowboard_cat) out.push(String(r.snowboard_cat).trim());
 
     // Biatlon je družstev → kategorii nevypisujeme
 
@@ -142,22 +140,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderRacers(rows) {
     if (!racersBody) return;
-    racersBody.innerHTML = (rows || []).map(r => {
-      const disc = displayDisciplines(r);
-      const cats = displayCategories(r);
+    racersBody.innerHTML = (rows || [])
+      .map((r) => {
+        const disc = displayDisciplines(r);
+        const cats = displayCategories(r);
 
-      return `
-        <tr>
-          <td>${esc(r.last_name)}</td>
-          <td>${esc(r.first_name)}</td>
-          <td>${esc(r.birth_date)}</td>
-          <td>${esc(r.team)}</td>
-          <td>${esc(disc)}</td>
-          <td>${esc(cats)}</td>
-          <td>${esc(r.start_number)}</td>
-        </tr>
-      `;
-    }).join("");
+        return `
+          <tr>
+            <td>${esc(r.last_name)}</td>
+            <td>${esc(r.first_name)}</td>
+            <td>${esc(r.birth_date)}</td>
+            <td>${esc(r.team)}</td>
+            <td>${esc(disc)}</td>
+            <td>${esc(cats)}</td>
+            <td>${esc(r.start_number)}</td>
+          </tr>
+        `;
+      })
+      .join("");
   }
 
   function byStart(a, b) {
@@ -174,11 +174,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!skiBody) return;
 
     const rows = state.racers
-      .filter(r => String(r.disciplines || "").toLowerCase().includes("lyže"))
+      .filter((r) => String(r.disciplines || "").toLowerCase().includes("lyže"))
       .slice()
       .sort(byStart);
 
-    skiBody.innerHTML = rows.map(r => `
+    skiBody.innerHTML = rows
+      .map(
+        (r) => `
       <tr>
         <td><b>${esc(r.start_number)}</b></td>
         <td>${esc(fullName(r))}</td>
@@ -189,7 +191,9 @@ document.addEventListener("DOMContentLoaded", () => {
         <td><input class="inputTime" data-id="${esc(r.id)}" data-d="ski" data-k="2" value="${esc(r.ski_time_2 || "")}" placeholder="např. 01:12.34"></td>
         <td><button class="btn smallBtn" data-save="1" data-id="${esc(r.id)}" data-d="ski" type="button">Uložit</button></td>
       </tr>
-    `).join("");
+    `
+      )
+      .join("");
 
     if (skiMsg) skiMsg.textContent = `Lyže: ${rows.length}`;
   }
@@ -198,11 +202,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!snowBody) return;
 
     const rows = state.racers
-      .filter(r => String(r.disciplines || "").toLowerCase().includes("snowboard"))
+      .filter((r) =>
+        String(r.disciplines || "").toLowerCase().includes("snowboard")
+      )
       .slice()
       .sort(byStart);
 
-    snowBody.innerHTML = rows.map(r => `
+    snowBody.innerHTML = rows
+      .map(
+        (r) => `
       <tr>
         <td><b>${esc(r.start_number)}</b></td>
         <td>${esc(fullName(r))}</td>
@@ -213,13 +221,14 @@ document.addEventListener("DOMContentLoaded", () => {
         <td><input class="inputTime" data-id="${esc(r.id)}" data-d="snowboard" data-k="2" value="${esc(r.snowboard_time_2 || "")}" placeholder="např. 01:12.34"></td>
         <td><button class="btn smallBtn" data-save="1" data-id="${esc(r.id)}" data-d="snowboard" type="button">Uložit</button></td>
       </tr>
-    `).join("");
+    `
+      )
+      .join("");
 
     if (snowMsg) snowMsg.textContent = `Snowboard: ${rows.length}`;
   }
 
   function cssEscapeSafe(value) {
-    // Edge/Chrome mají CSS.escape, ale pro jistotu fallback
     if (window.CSS && typeof window.CSS.escape === "function") return window.CSS.escape(value);
     return String(value).replace(/["\\]/g, "\\$&");
   }
@@ -232,13 +241,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await api("/api/biathlon-teams");
       const teams = data.teams || [];
 
-      biatBody.innerHTML = teams.map(t => `
+      biatBody.innerHTML = teams
+        .map(
+          (t) => `
         <tr>
           <td><b>${esc(t.team)}</b></td>
           <td><input class="inputTime" data-team="${esc(t.team)}" value="${esc(t.time || "")}" placeholder="např. 12:34.56"></td>
           <td><button class="btn smallBtn" data-biat-save="1" data-team="${esc(t.team)}" type="button">Uložit</button></td>
         </tr>
-      `).join("");
+      `
+        )
+        .join("");
 
       if (biatMsg) biatMsg.textContent = `Biatlon týmy: ${teams.length}`;
     } catch (e) {
@@ -252,6 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ["ski", tabSki, panelSki],
       ["snow", tabSnow, panelSnow],
       ["biat", tabBiat, panelBiat],
+      ["all", tabAll, panelAll],
     ];
 
     for (const [key, btn, panel] of map) {
@@ -262,25 +276,29 @@ document.addEventListener("DOMContentLoaded", () => {
     if (which === "ski") renderSkiPanel();
     if (which === "snow") renderSnowPanel();
     if (which === "biat") loadBiatTeams();
+    if (which === "all") renderRacers(state.racers);
   }
 
   if (tabSki) tabSki.addEventListener("click", () => setActiveTab("ski"));
   if (tabSnow) tabSnow.addEventListener("click", () => setActiveTab("snow"));
   if (tabBiat) tabBiat.addEventListener("click", () => setActiveTab("biat"));
+  if (tabAll) tabAll.addEventListener("click", () => setActiveTab("all"));
 
   // ======= LOAD RACERS =======
   async function loadRacers() {
     if (racersMsg) racersMsg.textContent = "Načítám…";
     try {
       const data = await api("/api/racers");
-
       state.racers = data.racers || [];
 
-      renderRacers(state.racers);
+      // přehled vyplňujeme jen v tabu "all", ale data si držíme vždy
+      if (tabAll?.classList.contains("active")) renderRacers(state.racers);
+
       if (racersMsg) racersMsg.textContent = `Načteno: ${data.count || 0}`;
 
       // překresli aktivní panel
-      if (tabSnow?.classList.contains("active")) renderSnowPanel();
+      if (tabAll?.classList.contains("active")) renderRacers(state.racers);
+      else if (tabSnow?.classList.contains("active")) renderSnowPanel();
       else if (tabBiat?.classList.contains("active")) loadBiatTeams();
       else renderSkiPanel();
     } catch (e) {
@@ -331,12 +349,11 @@ document.addEventListener("DOMContentLoaded", () => {
         await api("/api/delete-racers", { method: "POST" });
 
         state.racers = [];
-        renderRacers([]);
         renderSkiPanel();
         renderSnowPanel();
+        if (tabAll?.classList.contains("active")) renderRacers([]);
 
         if (racersMsg) racersMsg.textContent = "Smazáno. Čekám na nový XLSX import.";
-
         if (xlsxFile) xlsxFile.value = "";
         if (importMsg) importMsg.textContent = "";
       } catch (e) {
@@ -430,8 +447,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }),
       });
 
-      // update lokálně ve state
-      const r = state.racers.find(x => String(x.id) === String(id));
+      const r = state.racers.find((x) => String(x.id) === String(id));
       if (r) {
         if (discipline === "ski") {
           r.ski_time_1 = t1;
@@ -475,6 +491,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // start
   checkAuth();
 
-  // default tab (když už je přihlášen)
+  // default tab
   setActiveTab("ski");
 });
