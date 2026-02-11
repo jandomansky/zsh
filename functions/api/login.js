@@ -1,3 +1,4 @@
+// functions/api/login.js
 import { signSession } from "../_shared/auth.js";
 
 function json(data, status = 200, extraHeaders = {}) {
@@ -10,16 +11,19 @@ function json(data, status = 200, extraHeaders = {}) {
 async function readBody(request) {
   const ct = (request.headers.get("content-type") || "").toLowerCase();
 
+  // JSON
   if (ct.includes("application/json")) {
     const body = await request.json().catch(() => ({}));
     return body || {};
   }
 
+  // form-data fallback
   if (ct.includes("multipart/form-data")) {
     const form = await request.formData();
     return Object.fromEntries(form.entries());
   }
 
+  // text fallback (zkusíme JSON parse)
   const text = await request.text().catch(() => "");
   try {
     return JSON.parse(text);
@@ -34,12 +38,25 @@ export async function onRequestPost({ request, env }) {
     const password = (body.password || "").toString();
 
     if (!password) return json({ ok: false, error: "Missing password" }, 400);
-    if (!env.ADMIN_PASSWORD) return json({ ok: false, error: "ADMIN_PASSWORD missing in env" }, 500);
-    if (!env.SESSION_SECRET) return json({ ok: false, error: "SESSION_SECRET missing in env" }, 500);
 
-    if (password !== env.ADMIN_PASSWORD) return json({ ok: false, error: "Invalid password" }, 401);
+    if (!env.ADMIN_PASSWORD || String(env.ADMIN_PASSWORD).trim().length === 0) {
+      return json({ ok: false, error: "ADMIN_PASSWORD missing in env" }, 500);
+    }
 
-    const token = await signSession({ user: "admin" }, env.SESSION_SECRET);
+    // Diagnostika: přesně tohle ti teď padalo (len=0)
+    const secret = (env.SESSION_SECRET ?? "").toString();
+    if (secret.trim().length < 16) {
+      return json(
+        { ok: false, error: "SESSION_SECRET missing/too short", len: secret.length },
+        500
+      );
+    }
+
+    if (password !== env.ADMIN_PASSWORD) {
+      return json({ ok: false, error: "Invalid password" }, 401);
+    }
+
+    const token = await signSession({ user: "admin" }, secret);
 
     const cookie = [
       `session=${token}`,
@@ -47,11 +64,14 @@ export async function onRequestPost({ request, env }) {
       "HttpOnly",
       "Secure",
       "SameSite=Lax",
-      "Max-Age=604800"
+      "Max-Age=604800" // 7 dní
     ].join("; ");
 
     return json({ ok: true }, 200, { "set-cookie": cookie });
   } catch (e) {
-    return json({ ok: false, error: "Bad request", message: String(e?.message || e) }, 400);
+    return json(
+      { ok: false, error: "Bad request", message: String(e?.message || e) },
+      400
+    );
   }
 }
