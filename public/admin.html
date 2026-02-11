@@ -28,9 +28,16 @@
     <!-- ✅ Admin část -->
     <section id="adminCard" class="card" hidden>
 
-      <div class="row" style="justify-content:space-between;width:100%;">
-        <div class="status">Přihlášeno <span aria-hidden="true">✅</span></div>
-      </div>
+   <div class="row" style="justify-content:space-between;width:100%; gap:12px;">
+  <div class="status">Přihlášeno <span aria-hidden="true">✅</span></div>
+
+  <div class="tabs" role="tablist" aria-label="Disciplíny">
+    <button id="tabSki" class="btn tab active" type="button">Lyže</button>
+    <button id="tabSnow" class="btn tab" type="button">Snowboard</button>
+    <button id="tabBiat" class="btn tab" type="button">Biatlon</button>
+  </div>
+</div>
+
 
       <div class="row">
         <button id="deleteBtn" class="btn secondary">Smazat závodníky</button>
@@ -45,6 +52,16 @@
         <button id="importBtn" class="btn">Importovat</button>
         <p id="importMsg" class="hint"></p>
       </div>
+
+      <div class="row" style="justify-content:space-between;width:100%; gap:12px;">
+  <div class="status">Přihlášeno <span aria-hidden="true">✅</span></div>
+
+  <div class="tabs" role="tablist" aria-label="Disciplíny">
+    <button id="tabSki" class="btn tab active" type="button">Lyže</button>
+    <button id="tabSnow" class="btn tab" type="button">Snowboard</button>
+    <button id="tabBiat" class="btn tab" type="button">Biatlon</button>
+  </div>
+</div>
 
       <div class="tableWrap">
         <table class="tbl">
