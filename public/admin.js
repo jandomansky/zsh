@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginForm");
   const passwordEl = document.getElementById("password");
   const loginMsg = document.getElementById("loginMsg");
-
+const statusPill = document.getElementById("statusPill");
   const deleteBtn = document.getElementById("deleteBtn");
   const racersBody = document.getElementById("racersBody");
   const racersMsg = document.getElementById("racersMsg");
@@ -72,18 +72,21 @@ document.addEventListener("DOMContentLoaded", () => {
     return data;
   }
 
-  function showAdmin() {
-    if (loginCard) loginCard.hidden = true;
-    if (adminCard) adminCard.hidden = false;
-    if (logoutBtn) logoutBtn.hidden = false;
-    loadRacers();
-  }
+function showAdmin() {
+  if (loginCard) loginCard.hidden = true;
+  if (adminCard) adminCard.hidden = false;
+  if (logoutBtn) logoutBtn.hidden = false;
+  if (statusPill) statusPill.hidden = false;
+  loadRacers();
+}
 
-  function showLogin() {
-    if (loginCard) loginCard.hidden = false;
-    if (adminCard) adminCard.hidden = true;
-    if (logoutBtn) logoutBtn.hidden = true;
-  }
+function showLogin() {
+  if (loginCard) loginCard.hidden = false;
+  if (adminCard) adminCard.hidden = true;
+  if (logoutBtn) logoutBtn.hidden = true;
+  if (statusPill) statusPill.hidden = true;
+}
+
 
   async function checkAuth() {
     try {
