@@ -389,3 +389,30 @@ input[type="file"]{
   align-self: center;
   margin-top: 14px;
 }
+
+/* Hlavička panelu (nadpis + tlačítko) */
+.panelHeader{
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* tlačítko doprava */
+  margin: 10px 0 12px;
+}
+
+/* Nadpis skutečně vystředěný nad tabulkou */
+.panelTitle{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: .3px;
+  text-align: center;
+  pointer-events: none; /* aby nepřekážel klikům */
+}
+
+/* tlačítko generování */
+.genBtn{
+  white-space: nowrap;
+}
