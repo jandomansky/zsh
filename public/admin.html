@@ -21,9 +21,20 @@
       <img class="loginLogo" src="/zsh_logo_m.png" alt="Metrostav – Zimní sportovní hry" />
 
       <form id="loginForm">
-        <label for="password">Heslo</label>
-        <input id="password" type="password" autocomplete="current-password" required />
-        <button class="btn" type="submit">Přihlásit</button>
+<label for="password" class="loginLabel">
+  Zadejte administrátorské heslo
+</label>
+
+<input
+  id="password"
+  type="password"
+  autocomplete="current-password"
+  required
+/>
+
+<div class="loginActions">
+  <button class="btn" type="submit">Přihlásit</button>
+</div>
         <p id="loginMsg" class="msg"></p>
       </form>
     </section>
