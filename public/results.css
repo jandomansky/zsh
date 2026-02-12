@@ -203,82 +203,79 @@ h1{
   body{ padding: 16px; }
   .tbl{ min-width: 520px; }
 }
-/* ===== PROGRAM SPORTOVNÍHO DNE ===== */
-.scheduleCard{
-  margin-top: 14px;
+/* ===== PROGRAM SPORTOVNÍHO DNE (karty na střed, čas nad aktivitou) ===== */
+.scheduleCenter{
+  text-align: center;
 }
 
-.scheduleHead{
+.scheduleHeadCenter{
   display:flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
 }
 
-.scheduleTitle{
+.scheduleTitleCenter{
   margin: 0;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 900;
   letter-spacing: .2px;
 }
 
-.scheduleNote{
+.scheduleNoteCenter{
   color: rgba(255,255,255,.65);
-  font-weight: 700;
+  font-weight: 800;
   font-size: 13px;
 }
 
-.scheduleGrid{
+.scheduleCards{
   display:flex;
   flex-direction: column;
   gap: 10px;
+  align-items: center; /* zarovnání doprostřed */
 }
 
-.scheduleRow{
-  display:grid;
-  grid-template-columns: 140px 1fr;
-  gap: 12px;
-  align-items: center;
-  padding: 10px 12px;
+.scheduleCardItem{
+  width: min(760px, 100%);   /* aby to nebylo přes celou šířku */
+  padding: 12px 14px;
+  border-radius: 16px;
   border: 1px solid rgba(255,255,255,.10);
   background: rgba(0,0,0,.12);
-  border-radius: 14px;
+  backdrop-filter: blur(8px);
 }
 
-.scheduleTime{
+.scheduleTimeTop{
   font-weight: 900;
-  font-size: 13px;
-  color: rgba(255,255,255,.90);
-  letter-spacing: .2px;
-  white-space: nowrap;
-}
-
-.scheduleName{
-  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: .3px;
   color: rgba(255,255,255,.92);
+  margin-bottom: 6px;
 }
 
-.scheduleRow.break{
+.scheduleNameTop{
+  font-weight: 800;
+  font-size: 15px;
+  color: rgba(255,255,255,.90);
+}
+
+.scheduleCardItem.isBreak{
   background: rgba(255,255,255,.06);
   border-color: rgba(255,255,255,.14);
 }
 
-.scheduleRow.highlight{
-  background: rgba(124,92,255,.12);
-  border-color: rgba(124,92,255,.28);
+.scheduleCardItem.isHighlight{
+  background: rgba(124,92,255,.14);
+  border-color: rgba(124,92,255,.30);
 }
 
-.scheduleRow.party{
-  background: rgba(45,212,191,.10);
-  border-color: rgba(45,212,191,.24);
+.scheduleCardItem.isParty{
+  background: rgba(45,212,191,.12);
+  border-color: rgba(45,212,191,.26);
 }
 
 @media (max-width: 720px){
-  .scheduleRow{
-    grid-template-columns: 1fr;
-  }
-  .scheduleTime{
-    opacity: .85;
+  .scheduleCardItem{
+    width: 100%;
   }
 }
+
