@@ -104,7 +104,15 @@ function randomTime() {
     String(hundredths).padStart(2, "0")
   );
 }
+function fillRandomTimes(discipline) {
+  const inputs = document.querySelectorAll(
+    `.inputTime[data-d="${discipline}"]`
+  );
 
+  inputs.forEach((inp) => {
+    inp.value = randomTime();
+  });
+}
 
   async function checkAuth() {
     try {
