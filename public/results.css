@@ -278,4 +278,81 @@ h1{
     width: 100%;
   }
 }
+/* PROGRAM bez podkladového bloku (plain), vše uprostřed */
+.schedulePlain{
+  margin: 14px 0 22px;
+}
+
+.schedulePlainInner{
+  max-width: 760px;
+  margin: 0 auto; /* vystředění celé sekce */
+  text-align: center;
+}
+
+.scheduleHeadCenter{
+  display:flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.scheduleTitleCenter{
+  margin: 0;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: .2px;
+}
+
+.scheduleNoteCenter{
+  color: rgba(255,255,255,.65);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+/* položky programu: bez “tabulky”, jen čistý stack */
+.scheduleStack{
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px; /* mezera mezi bloky */
+}
+
+.scheduleItem{
+  width: 100%;
+  padding: 0;              /* žádný box */
+  border: 0;
+  background: transparent; /* žádný podklad */
+}
+
+.scheduleTimeTop{
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: .3px;
+  color: rgba(255,255,255,.92);
+  margin-bottom: 6px;
+}
+
+.scheduleNameTop{
+  font-weight: 800;
+  font-size: 16px;
+  color: rgba(255,255,255,.90);
+}
+
+/* větší mezera mezi částmi programu */
+.scheduleGap{
+  height: 12px;
+}
+
+/* jemné zvýraznění bez “bloku” */
+.scheduleItem.isBreak .scheduleNameTop{
+  color: rgba(255,255,255,.78);
+}
+
+.scheduleItem.isHighlight .scheduleNameTop{
+  color: rgba(124,92,255,.95);
+}
+
+.scheduleItem.isParty .scheduleNameTop{
+  color: rgba(45,212,191,.92);
+}
 
