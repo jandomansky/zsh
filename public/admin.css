@@ -274,6 +274,26 @@ input[type="file"]{
   letter-spacing: .3px;
 }
 
+/* ===== HLAVIČKA PANELU: nadpis uprostřed + tlačítko vpravo ===== */
+.panelHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin: 14px 0 14px;
+}
+
+.panelHead .panelTitle{
+  margin:0;          /* ať se nepere s marginem z .panelTitle */
+  flex:1;            /* nadpis zabere prostor */
+  text-align:center; /* zůstane uprostřed */
+}
+
+.panelHead .btn{
+  flex-shrink:0;     /* tlačítko zůstane vpravo */
+}
+
+
 /* Table */
 .tableWrap{
   margin-top: 12px;
