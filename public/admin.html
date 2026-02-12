@@ -10,13 +10,16 @@
   <main class="wrap">
 
     <header class="top">
-      <h1>ZSH – Admin</h1>
+      <!-- h1 pryč, zůstává jen logout -->
+      <div></div>
       <button id="logoutBtn" class="btn secondary" hidden>Odhlásit</button>
     </header>
 
     <!-- ✅ Užší login karta -->
     <section id="loginCard" class="card login">
-      <h2>Přihlášení</h2>
+      <!-- ✅ logo místo nadpisu, vycentrované nad formulářem -->
+      <img class="loginLogo" src="/zsh_logo.png" alt="Metrostav – Zimní sportovní hry" />
+
       <form id="loginForm">
         <label for="password">Heslo</label>
         <input id="password" type="password" autocomplete="current-password" required />
