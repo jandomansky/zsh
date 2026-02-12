@@ -203,3 +203,82 @@ h1{
   body{ padding: 16px; }
   .tbl{ min-width: 520px; }
 }
+/* ===== PROGRAM SPORTOVNÍHO DNE ===== */
+.scheduleCard{
+  margin-top: 14px;
+}
+
+.scheduleHead{
+  display:flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.scheduleTitle{
+  margin: 0;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: .2px;
+}
+
+.scheduleNote{
+  color: rgba(255,255,255,.65);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.scheduleGrid{
+  display:flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.scheduleRow{
+  display:grid;
+  grid-template-columns: 140px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.12);
+  border-radius: 14px;
+}
+
+.scheduleTime{
+  font-weight: 900;
+  font-size: 13px;
+  color: rgba(255,255,255,.90);
+  letter-spacing: .2px;
+  white-space: nowrap;
+}
+
+.scheduleName{
+  font-weight: 800;
+  color: rgba(255,255,255,.92);
+}
+
+.scheduleRow.break{
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.14);
+}
+
+.scheduleRow.highlight{
+  background: rgba(124,92,255,.12);
+  border-color: rgba(124,92,255,.28);
+}
+
+.scheduleRow.party{
+  background: rgba(45,212,191,.10);
+  border-color: rgba(45,212,191,.24);
+}
+
+@media (max-width: 720px){
+  .scheduleRow{
+    grid-template-columns: 1fr;
+  }
+  .scheduleTime{
+    opacity: .85;
+  }
+}
