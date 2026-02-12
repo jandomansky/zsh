@@ -207,19 +207,46 @@ document.addEventListener("DOMContentLoaded", () => {
     if (skiMsg) skiMsg.textContent = `Lyže: ${rows.length}`;
   }
 
-  function renderSnowPanel() {
-    if (!snowBody) return;
+// --- Snowboard řazení: Ženy (nejstarší->nejmladší), pak Muži (nejstarší->nejmladší) ---
+function genderSnow(r) {
+  // primárně snowboard_cat ("Ž" / "M"), fallback na category_os
+  const sc = String(r.snowboard_cat || "").trim();
+  if (sc === "Ž" || sc === "M") return sc;
 
-    const rows = state.racers
-      .filter((r) =>
-        String(r.disciplines || "").toLowerCase().includes("snowboard")
-      )
-      .slice()
-      .sort(byStart);
+  const os = String(r.category_os || "").trim();
+  return os.startsWith("Ž") ? "Ž" : "M";
+}
 
-    snowBody.innerHTML = rows
-      .map(
-        (r) => `
+function byGenderThenAgeSnow(a, b) {
+  const ga = genderSnow(a);
+  const gb = genderSnow(b);
+
+  // ženy první
+  if (ga !== gb) return ga === "Ž" ? -1 : 1;
+
+  // starší první = menší datum narození
+  const da = new Date(a.birth_date || "9999-12-31").getTime();
+  const db = new Date(b.birth_date || "9999-12-31").getTime();
+  if (da !== db) return da - db;
+
+  // stabilní dořazení (aby to neskákalo)
+  const la = String(a.last_name || "").localeCompare(String(b.last_name || ""), "cs", { sensitivity: "base" });
+  if (la !== 0) return la;
+
+  return String(a.first_name || "").localeCompare(String(b.first_name || ""), "cs", { sensitivity: "base" });
+}
+
+function renderSnowPanel() {
+  if (!snowBody) return;
+
+  const rows = state.racers
+    .filter((r) => String(r.disciplines || "").toLowerCase().includes("snowboard"))
+    .slice()
+    .sort(byGenderThenAgeSnow);
+
+  snowBody.innerHTML = rows
+    .map(
+      (r) => `
       <tr>
         <td><b>${esc(r.start_number)}</b></td>
         <td>${esc(fullName(r))}</td>
@@ -231,11 +258,12 @@ document.addEventListener("DOMContentLoaded", () => {
         <td><button class="btn smallBtn" data-save="1" data-id="${esc(r.id)}" data-d="snowboard" type="button">Uložit</button></td>
       </tr>
     `
-      )
-      .join("");
+    )
+    .join("");
 
-    if (snowMsg) snowMsg.textContent = `Snowboard: ${rows.length}`;
-  }
+  if (snowMsg) snowMsg.textContent = `Snowboard: ${rows.length}`;
+}
+
 
   function cssEscapeSafe(value) {
     if (window.CSS && typeof window.CSS.escape === "function") return window.CSS.escape(value);
