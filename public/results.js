@@ -66,12 +66,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${r.last_name || ""} ${r.first_name || ""}`.trim();
   }
 
-  function calcTotalMs(t1, t2) {
-    const a = parseTimeToMs(t1);
-    const b = parseTimeToMs(t2);
-    if (a == null || b == null) return null;
-    return a + b;
-  }
+function calcBestMs(t1, t2) {
+  const a = parseTimeToMs(t1);
+  const b = parseTimeToMs(t2);
+
+  if (a == null && b == null) return null;
+  if (a == null) return b;
+  if (b == null) return a;
+  return Math.min(a, b);
+}
 
   function sortByTotalAsc(a, b) {
     const aa = a.totalMs == null ? Number.POSITIVE_INFINITY : a.totalMs;
@@ -118,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <th>Tým</th>
                 <th>Čas 1</th>
                 <th>Čas 2</th>
-                <th>Součet</th>
+                <th>Nejlepší</th>
               </tr>
             </thead>
             <tbody>
@@ -147,24 +150,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const snowWomenCats = ["Ž"];
 
     // decorate: compute totals
-    const decorated = racers.map(r => ({
-      ...r,
-      skiTotalMs: calcTotalMs(r.ski_time_1, r.ski_time_2),
-      snowTotalMs: calcTotalMs(r.snowboard_time_1, r.snowboard_time_2),
-    }));
+   const decorated = racers.map(r => ({
+  ...r,
+  skiBestMs: calcBestMs(r.ski_time_1, r.ski_time_2),
+  snowBestMs: calcBestMs(r.snowboard_time_1, r.snowboard_time_2),
+}));
 
     // helper: filter by discipline + category
     const skiRowsByCat = (cat) =>
       decorated
         .filter(r => hasDisc(r, "lyže"))
         .filter(r => String(r.category_os || "").trim() === cat)
-        .map(r => ({ ...r, totalMs: r.skiTotalMs }));
+        .map(r => ({ ...r, totalMs: r.skiBestMs }));
 
     const snowRowsByCat = (cat) =>
       decorated
         .filter(r => hasDisc(r, "snowboard"))
         .filter(r => String(r.snowboard_cat || "").trim() === cat)
-        .map(r => ({ ...r, totalMs: r.snowTotalMs }));
+        .map(r => ({ ...r, totalMs: r.snowBestMs }));
 
     skiMen.innerHTML = skiMenCats
       .map(cat => makeGroupCard(`Kategorie ${cat}`, skiRowsByCat(cat), "ski"))
