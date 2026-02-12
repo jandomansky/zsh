@@ -263,15 +263,15 @@ input[type="file"]{
 }
 
 /* ===== NOVÉ: titul nad tabulkou přehledu ===== */
-.tableTitle{
+/* ===== Titul nad tabulkou (Lyže / Snowboard / Biatlon / Přehled) ===== */
+.tableTitle,
+.panelTitle{
   text-align: center;
   font-size: 22px;
   line-height: 1.2;
-  margin: 10px 0 12px;
-}
-
-.panelTitle{
-  margin: 10px 0 12px;
+  margin: 14px 0 14px;
+  font-weight: 800;
+  letter-spacing: .3px;
 }
 
 /* Table */
