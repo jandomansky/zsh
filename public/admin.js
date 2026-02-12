@@ -86,6 +86,24 @@ function showLogin() {
   if (logoutBtn) logoutBtn.hidden = true;
   if (statusPill) statusPill.hidden = true;
 }
+function randomTime() {
+  // 1:00.00 – 1:59.99
+  const min = 60 * 100;
+  const max = 120 * 100 - 1;
+  const t = Math.floor(Math.random() * (max - min + 1)) + min;
+
+  const minutes = Math.floor(t / 6000);
+  const seconds = Math.floor((t % 6000) / 100);
+  const hundredths = t % 100;
+
+  return (
+    String(minutes).padStart(2, "0") +
+    ":" +
+    String(seconds).padStart(2, "0") +
+    "." +
+    String(hundredths).padStart(2, "0")
+  );
+}
 
 
   async function checkAuth() {
