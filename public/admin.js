@@ -113,6 +113,13 @@ function fillRandomTimes(discipline) {
     inp.value = randomTime();
   });
 }
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-gen-times]");
+  if (!btn) return;
+
+  const discipline = btn.getAttribute("data-gen-times");
+  fillRandomTimes(discipline);
+});
 
   async function checkAuth() {
     try {
