@@ -125,18 +125,27 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function displayCategories(r) {
-    const out = [];
+  const out = [];
 
-    // Lyže → M1/M2/M3/Ž1/Ž2 (jen pokud závodí v lyžích)
-    if (hasDisc(r, "lyže") && r.category_os) out.push(String(r.category_os).trim());
-
-    // Snowboard → jen M/Ž (jen pokud závodí ve snowboardu)
-    if (hasDisc(r, "snowboard") && r.snowboard_cat) out.push(String(r.snowboard_cat).trim());
-
-    // Biatlon je družstev → kategorii nevypisujeme
-
-    return [...new Set(out)].join(", ");
+  // Lyže → M1 / M2 / M3 / Ž1 / Ž2
+  if (hasDisc(r, "lyže") && r.category_os) {
+    out.push(String(r.category_os).trim());
   }
+
+  // Snowboard → M / Ž
+  if (hasDisc(r, "snowboard") && r.snowboard_cat) {
+    out.push(String(r.snowboard_cat).trim());
+  }
+
+  // Biatlon → Bi
+  if (hasDisc(r, "biatlon") || Number(r.biatlon) === 1) {
+    out.push("Bi");
+  }
+
+  // odstranění duplicit + spojení
+  return [...new Set(out)].join(", ");
+}
+
 
   function renderRacers(rows) {
     if (!racersBody) return;
