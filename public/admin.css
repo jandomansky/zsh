@@ -266,3 +266,19 @@ input[type="file"]{
   margin: 40px auto 0 auto; /* vystředění */
   padding: 28px;
 }
+
+/* text nad polem */
+.loginLabel {
+  display: block;
+  text-align: center;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  color: rgba(255,255,255,.75);
+}
+
+/* zarovnání tlačítka */
+.loginActions {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
