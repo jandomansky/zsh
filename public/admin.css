@@ -35,6 +35,19 @@ body{
   margin: 0 auto;
 }
 
+.loginLogo{
+  display:block;
+  margin: 4px auto 18px;
+  width: min(420px, 100%);
+  height:auto;
+  border-radius: 14px;
+  filter: drop-shadow(0 18px 40px rgba(0,0,0,.35));
+}
+
+#loginForm .btn{
+  margin-top: 12px;
+}
+
 .top{
   display:flex;
   align-items:flex-start;
