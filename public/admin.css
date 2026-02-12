@@ -390,29 +390,32 @@ input[type="file"]{
   margin-top: 14px;
 }
 
-/* Hlavička panelu (nadpis + tlačítko) */
+/* Hlavička panelu: vlevo prázdno | uprostřed nadpis | vpravo tlačítko */
 .panelHeader{
-  position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: flex-end; /* tlačítko doprava */
   margin: 10px 0 12px;
 }
 
-/* Nadpis skutečně vystředěný nad tabulkou */
+/* Nadpis vždy uprostřed nad tabulkou */
 .panelTitle{
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  grid-column: 2;
+  justify-self: center;
   margin: 0;
   font-size: 22px;
   font-weight: 800;
   letter-spacing: .3px;
   text-align: center;
-  pointer-events: none; /* aby nepřekážel klikům */
+  white-space: nowrap; /* aby se nelámal */
 }
 
-/* tlačítko generování */
-.genBtn{
+/* Tlačítko vždy vpravo */
+.panelHeader .genBtn{
+  grid-column: 3;
+  justify-self: end;
   white-space: nowrap;
 }
+
+/* Kdybys někde měl .panelTitle{ text-align:left } apod., tohle to přebije */
+
