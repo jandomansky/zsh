@@ -10,31 +10,20 @@
   <main class="wrap">
 
     <header class="top">
-      <!-- h1 pryč, zůstává jen logout -->
-      <div></div>
-      <button id="logoutBtn" class="btn secondary" hidden>Odhlásit</button>
+      <!-- (nadpis už na loginu nepotřebujeme, v kartě je logo) -->
+      <div class="topRight">
+        <span id="statusPill" class="pill" hidden>Přihlášeno <span aria-hidden="true">✅</span></span>
+        <button id="logoutBtn" class="btn secondary" hidden>Odhlásit</button>
+      </div>
     </header>
 
     <!-- ✅ Užší login karta -->
     <section id="loginCard" class="card login">
-      <!-- ✅ logo místo nadpisu, vycentrované nad formulářem -->
-      <img class="loginLogo" src="/zsh_logo_m.png" alt="Metrostav – Zimní sportovní hry" />
-
-      <form id="loginForm">
-<label for="password" class="loginLabel">
-  Zadejte administrátorské heslo
-</label>
-
-<input
-  id="password"
-  type="password"
-  autocomplete="current-password"
-  required
-/>
-
-<div class="loginActions">
-  <button class="btn" type="submit">Přihlásit</button>
-</div>
+      <img class="loginLogo" src="/zsh_logo.png" alt="Metrostav – Zimní sportovní hry" />
+      <form id="loginForm" class="loginForm">
+        <label for="password" class="loginLabel">Zadejte administrátorské heslo</label>
+        <input id="password" type="password" autocomplete="current-password" required />
+        <button class="btn loginBtn" type="submit">Přihlásit</button>
         <p id="loginMsg" class="msg"></p>
       </form>
     </section>
@@ -42,37 +31,34 @@
     <!-- ✅ Admin část -->
     <section id="adminCard" class="card" hidden>
 
-      <!-- status + taby -->
-      <div class="row" style="justify-content:space-between;width:100%; gap:12px;">
-        <div class="status">Přihlášeno <span aria-hidden="true">✅</span></div>
+      <!-- horní lišta: akce vlevo, taby vpravo -->
+      <div class="adminTop">
+        <div class="adminActions">
+          <button id="tabAll" class="btn tab active" type="button">Přehled všech závodníků</button>
+          <button id="recalculateBtn" class="btn secondary" type="button">Přepočítat startovní čísla</button>
+          <button id="deleteBtn" class="btn secondary" type="button">Smazat závodníky</button>
+        </div>
 
-        <div class="tabs" role="tablist" aria-label="Sekce">
-          <button id="tabSki" class="btn tab active" type="button">Lyže</button>
+        <div class="tabs tabsRight" role="tablist" aria-label="Disciplíny">
+          <button id="tabSki" class="btn tab" type="button">Lyže</button>
           <button id="tabSnow" class="btn tab" type="button">Snowboard</button>
           <button id="tabBiat" class="btn tab" type="button">Biatlon</button>
-          <button id="tabAll" class="btn tab" type="button">Přehled všech závodníků</button>
         </div>
       </div>
 
-      <!-- akce -->
-      <div class="row">
-        <button id="deleteBtn" class="btn secondary" type="button">Smazat závodníky</button>
-        <button id="recalculateBtn" class="btn secondary" type="button">
-          Přepočítat startovní čísla
-        </button>
-      </div>
-
       <!-- import -->
-      <div class="row">
+      <div class="importBox">
         <h3>Import XLSX</h3>
-        <input type="file" id="xlsxFile" accept=".xlsx" />
-        <button id="importBtn" class="btn" type="button">Importovat</button>
+        <div class="importRow">
+          <input type="file" id="xlsxFile" accept=".xlsx" />
+          <button id="importBtn" class="btn" type="button">Importovat</button>
+        </div>
         <p id="importMsg" class="hint"></p>
       </div>
 
       <!-- ====== SEKCE: LYŽE ====== -->
-      <section id="panelSki" class="panel">
-        <h3>Lyže – výsledky</h3>
+      <section id="panelSki" class="panel" hidden>
+        <h3 class="panelTitle">Lyže – výsledky</h3>
         <div class="tableWrap">
           <table class="tbl">
             <thead>
@@ -95,7 +81,7 @@
 
       <!-- ====== SEKCE: SNOWBOARD ====== -->
       <section id="panelSnow" class="panel" hidden>
-        <h3>Snowboard – výsledky</h3>
+        <h3 class="panelTitle">Snowboard – výsledky</h3>
         <div class="tableWrap">
           <table class="tbl">
             <thead>
@@ -118,7 +104,7 @@
 
       <!-- ====== SEKCE: BIATLON ====== -->
       <section id="panelBiat" class="panel" hidden>
-        <h3>Biatlon – týmy</h3>
+        <h3 class="panelTitle">Biatlon – týmy</h3>
         <div class="tableWrap">
           <table class="tbl">
             <thead>
@@ -135,8 +121,8 @@
       </section>
 
       <!-- ====== 4. TAB: PŘEHLED VŠECH ZÁVODNÍKŮ ====== -->
-      <section id="panelAll" class="panel" hidden>
-        <h3>Přehled závodníků</h3>
+      <section id="panelAll" class="panel">
+        <h3 class="tableTitle">Přehled závodníků</h3>
         <div class="tableWrap">
           <table class="tbl">
             <thead>
@@ -160,6 +146,6 @@
 
   </main>
 
-  <script src="/admin.js?v=20260211-1"></script>
+  <script src="/admin.js?v=20260212-1"></script>
 </body>
 </html>
