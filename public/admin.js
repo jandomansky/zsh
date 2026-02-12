@@ -104,22 +104,129 @@ function randomTime() {
     String(hundredths).padStart(2, "0")
   );
 }
-function fillRandomTimes(discipline) {
-  const inputs = document.querySelectorAll(
-    `.inputTime[data-d="${discipline}"]`
-  );
+async function generateAndSaveRandomTimes(discipline) {
+  // helpers pro zprávy
+  const msgEl =
+    discipline === "ski" ? skiMsg :
+    discipline === "snowboard" ? snowMsg :
+    discipline === "biat" ? biatMsg :
+    null;
 
-  inputs.forEach((inp) => {
-    inp.value = randomTime();
-  });
+  const setPanelMsg = (t) => { if (msgEl) msgEl.textContent = t; };
+
+  // --- LYŽE / SNOWBOARD: 2 časy pro každého závodníka ---
+  if (discipline === "ski" || discipline === "snowboard") {
+    const ids = Array.from(
+      document.querySelectorAll(`input.inputTime[data-d="${discipline}"][data-k="1"]`)
+    )
+      .map((i) => i.getAttribute("data-id"))
+      .filter(Boolean);
+
+    if (!ids.length) {
+      setPanelMsg("Nenalezeni žádní závodníci pro generování.");
+      return;
+    }
+
+    setPanelMsg("Generuji a ukládám časy…");
+
+    // ukládáme postupně (jednodušší a spolehlivé)
+    let saved = 0;
+    for (const id of ids) {
+      const t1 = randomTime();
+      const t2 = randomTime();
+
+      // vyplň inputy
+      const i1 = document.querySelector(
+        `input.inputTime[data-id="${cssEscapeSafe(id)}"][data-d="${discipline}"][data-k="1"]`
+      );
+      const i2 = document.querySelector(
+        `input.inputTime[data-id="${cssEscapeSafe(id)}"][data-d="${discipline}"][data-k="2"]`
+      );
+      if (i1) i1.value = t1;
+      if (i2) i2.value = t2;
+
+      // uložit přes API
+      await api("/api/results", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          id,
+          discipline,
+          time1: t1,
+          time2: t2,
+        }),
+      });
+
+      // update lokálně ve state (ať se to drží po překreslení)
+      const r = state.racers.find(x => String(x.id) === String(id));
+      if (r) {
+        if (discipline === "ski") {
+          r.ski_time_1 = t1;
+          r.ski_time_2 = t2;
+        } else {
+          r.snowboard_time_1 = t1;
+          r.snowboard_time_2 = t2;
+        }
+      }
+
+      saved++;
+    }
+
+    setPanelMsg(`Hotovo ✅ Uloženo: ${saved}`);
+    return;
+  }
+
+  // --- BIATLON: 1 čas pro tým ---
+  if (discipline === "biat") {
+    const inputs = Array.from(
+      document.querySelectorAll(`#panelBiat input.inputTime[data-team]`)
+    );
+
+    if (!inputs.length) {
+      setPanelMsg("Nenalezeny žádné biatlon týmy pro generování.");
+      return;
+    }
+
+    setPanelMsg("Generuji a ukládám časy týmů…");
+
+    let saved = 0;
+    for (const inp of inputs) {
+      const team = inp.getAttribute("data-team");
+      if (!team) continue;
+
+      const t = randomTime(); // 1–2 minuty ve formátu 01:12.34
+      inp.value = t;
+
+      await api("/api/biathlon-teams", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ team, time: t }),
+      });
+
+      saved++;
+    }
+
+    setPanelMsg(`Hotovo ✅ Uloženo týmů: ${saved}`);
+    return;
+  }
 }
-document.addEventListener("click", (e) => {
+
+document.addEventListener("click", async (e) => {
   const btn = e.target.closest("[data-gen-times]");
   if (!btn) return;
 
   const discipline = btn.getAttribute("data-gen-times");
-  fillRandomTimes(discipline);
+  btn.disabled = true;
+
+  try {
+    await generateAndSaveRandomTimes(discipline);
+  } catch (err) {
+    alert("Chyba generování/ukládání: " + (err?.message || err));
+  } finally {
+    btn.disabled = false;
+  }
 });
+
 
   async function checkAuth() {
     try {
