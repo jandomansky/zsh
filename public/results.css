@@ -355,4 +355,126 @@ h1{
 .scheduleItem.isParty .scheduleNameTop{
   color: rgba(45,212,191,.92);
 }
+/* ====== PROGRAM – TIMELINE (levý návrh) ====== */
+.scheduleWrap{
+  margin: 26px auto 10px;
+  max-width: 760px;
+  text-align: center;
+}
+
+.scheduleTitle{
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: .4px;
+}
+
+.scheduleSub{
+  margin-top: 6px;
+  color: rgba(255,255,255,.75);
+  font-weight: 700;
+  letter-spacing: .25px;
+}
+
+/* timeline container */
+.timeline{
+  position: relative;
+  margin: 18px auto 0;
+  padding: 10px 0 8px;
+}
+
+/* vertical glowing line */
+.timeline::before{
+  content:"";
+  position:absolute;
+  left: 18px;
+  top: 8px;
+  bottom: 8px;
+  width: 4px;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgba(124,92,255,.85),
+    rgba(45,212,191,.55)
+  );
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.08),
+    0 0 22px rgba(124,92,255,.35),
+    0 0 26px rgba(45,212,191,.22);
+  opacity: .95;
+}
+
+/* each item */
+.tlItem{
+  position: relative;
+  padding: 12px 10px 12px 58px;
+  margin: 6px 0;
+}
+
+/* dot */
+.tlDot{
+  position:absolute;
+  left: 8px;
+  top: 18px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.92);
+  box-shadow:
+    0 0 0 6px rgba(124,92,255,.16),
+    0 0 18px rgba(124,92,255,.25);
+}
+
+/* time + text */
+.tlTime{
+  font-weight: 900;
+  letter-spacing: .3px;
+  font-size: 15px;
+  color: rgba(255,255,255,.92);
+}
+
+.tlText{
+  margin-top: 4px;
+  font-size: 18px;
+  font-weight: 800;
+  color: rgba(255,255,255,.95);
+}
+
+/* spacing between blocks */
+.tlBreak{ margin-top: 18px; }
+.tlBreak .tlDot{
+  background: rgba(255,255,255,.92);
+  box-shadow:
+    0 0 0 6px rgba(255,255,255,.10),
+    0 0 16px rgba(255,255,255,.10);
+}
+
+/* special highlights */
+.tlHighlight .tlText{
+  color: rgba(167,139,250,1); /* jemně do fialova */
+}
+.tlHighlight .tlDot{
+  box-shadow:
+    0 0 0 6px rgba(167,139,250,.18),
+    0 0 18px rgba(167,139,250,.28);
+}
+
+.tlParty .tlText{
+  color: rgba(45,212,191,1); /* tyrkys */
+}
+.tlParty .tlDot{
+  box-shadow:
+    0 0 0 6px rgba(45,212,191,.18),
+    0 0 18px rgba(45,212,191,.25);
+}
+
+/* responsive */
+@media (max-width: 720px){
+  .scheduleWrap{ max-width: 92vw; }
+  .scheduleTitle{ font-size: 24px; }
+  .tlText{ font-size: 16px; }
+  .timeline::before{ left: 14px; }
+  .tlItem{ padding-left: 52px; }
+  .tlDot{ left: 4px; }
+}
 
