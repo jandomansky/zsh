@@ -44,16 +44,19 @@ body{
   filter: drop-shadow(0 18px 40px rgba(0,0,0,.35));
 }
 
-#loginForm .btn{
-  margin-top: 12px;
-}
-
 .top{
   display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap: 16px;
+  justify-content:flex-end;
+  align-items:center;
+  gap: 10px;
   margin-bottom: 14px;
+}
+
+/* (používá admin.html: <div class="topRight">...) */
+.topRight{
+  display:flex;
+  gap:10px;
+  align-items:center;
 }
 
 h1{
@@ -181,7 +184,7 @@ input[type="file"]{
   background: rgba(0,0,0,.14);
 }
 
-/* Status pill (nice for "Přihlášeno") */
+/* Status pill (legacy) */
 .status{
   display:inline-flex;
   align-items:center;
@@ -193,6 +196,80 @@ input[type="file"]{
   color: var(--text);
   font-weight: 800;
   font-size: 13px;
+}
+
+/* ===== NOVÉ: pill vedle Odhlásit ===== */
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.14);
+  color: rgba(255,255,255,.92);
+  font-weight: 700;
+  font-size: 13px;
+  backdrop-filter: blur(10px);
+}
+
+/* ===== NOVÉ: horní lišta adminu ===== */
+.adminTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.adminActions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap: wrap;
+}
+
+.tabsRight{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap: wrap;
+}
+
+/* ===== NOVÉ: Import box (užší) ===== */
+.importBox{
+  margin-top: 6px;
+  margin-bottom: 16px;
+}
+
+.importRow{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap: wrap;
+  max-width: 520px; /* aby to nebylo přes celou šířku */
+}
+
+#xlsxFile{
+  width: 260px;
+  max-width: 100%;
+}
+
+#importBtn{
+  white-space: nowrap;
+}
+
+/* ===== NOVÉ: titul nad tabulkou přehledu ===== */
+.tableTitle{
+  text-align: center;
+  font-size: 22px;
+  line-height: 1.2;
+  margin: 10px 0 12px;
+}
+
+.panelTitle{
+  margin: 10px 0 12px;
 }
 
 /* Table */
@@ -251,34 +328,41 @@ input[type="file"]{
 }
 
 /* Keep buttons above table */
-.row { position: relative; z-index: 5; }
-.tableWrap { position: relative; z-index: 1; }
+.row{ position: relative; z-index: 5; }
+.tableWrap{ position: relative; z-index: 1; }
 
 /* Small screens */
 @media (max-width: 720px){
   body{ padding: 16px; }
   h1{ font-size: 26px; }
   .card{ padding: 14px; }
+  .importRow{ max-width: 100%; }
+  #xlsxFile{ width: 100%; }
 }
-/* Užší login karta */
+
+/* ===== LOGIN: užší karta + centrované prvky ===== */
 .card.login{
   max-width: 520px;
-  margin: 40px auto 0 auto; /* vystředění */
+  margin: 40px auto 0 auto;
   padding: 28px;
 }
 
-/* text nad polem */
-.loginLabel {
-  display: block;
-  text-align: center;
-  margin-bottom: 8px;
+.loginForm{
+  display:flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.loginLabel{
+  display:block;
+  text-align:center;
+  margin: 4px 0 10px;
   font-size: 0.95rem;
   color: rgba(255,255,255,.75);
 }
 
-/* zarovnání tlačítka */
-.loginActions {
-  display: flex;
-  justify-content: center;
-  margin-top: 16px;
+.loginBtn{
+  width: fit-content;
+  align-self: center;
+  margin-top: 14px;
 }
