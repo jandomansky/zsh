@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ZSH – Průběžné výsledky</title>
+  <link rel="stylesheet" href="/results.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header class="hero">
+      <img class="logo" src="/zsh_logo.png" alt="Metrostav – Zimní sportovní hry" />
+      <div class="heroText">
+        <h1>Průběžné výsledky</h1>
+        <p class="sub">
+          Řazeno od nejrychlejšího (součet Čas 1 + Čas 2). Stránka se sama obnovuje.
+        </p>
+      </div>
+      <div class="heroRight">
+        <span id="lastUpdated" class="pill">Načítám…</span>
+        <button id="refreshBtn" class="btn secondary" type="button">Obnovit</button>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2 class="sectionTitle">Výsledky lyže – muži</h2>
+      <div id="skiMen" class="groupGrid"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="sectionTitle">Výsledky lyže – ženy</h2>
+      <div id="skiWomen" class="groupGrid"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="sectionTitle">Výsledky snowboard – muži</h2>
+      <div id="snowMen" class="groupGrid"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="sectionTitle">Výsledky snowboard – ženy</h2>
+      <div id="snowWomen" class="groupGrid"></div>
+    </section>
+
+    <footer class="foot">
+      <span class="muted">ZSH – veřejná výsledková stránka</span>
+    </footer>
+  </main>
+
+  <script src="/results.js?v=20260212-1"></script>
+</body>
+</html>
